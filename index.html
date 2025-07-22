@@ -186,6 +186,10 @@
                         <i class="fas fa-redo mr-2"></i>
                         <span data-i18n="reset">リセット</span>
                     </button>
+                    <button onclick="initializeGame(true)" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors">
+                        <i class="fas fa-power-off mr-2"></i>
+                        <span data-i18n="initialize">初期化</span>
+                    </button>
                     <button onclick="shareResults()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
                         <i class="fas fa-share mr-2"></i>
                         <span data-i18n="share">シェア</span>
@@ -250,7 +254,7 @@
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-2 gap-3 mb-3">
                     <button onclick="showHint()" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-3 rounded-lg text-sm">
                         <i class="fas fa-lightbulb mr-1"></i>
                         <span data-i18n="hint">ヒント</span>
@@ -258,6 +262,16 @@
                     <button onclick="checkAnswers()" class="bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded-lg text-sm">
                         <i class="fas fa-check mr-1"></i>
                         <span data-i18n="check">確認</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <button onclick="resetGame()" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-3 rounded-lg text-sm">
+                        <i class="fas fa-redo mr-1"></i>
+                        <span data-i18n="reset">リセット</span>
+                    </button>
+                    <button onclick="initializeGame(true)" class="bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded-lg text-sm">
+                        <i class="fas fa-power-off mr-1"></i>
+                        <span data-i18n="initialize">初期化</span>
                     </button>
                     <button onclick="shareResults()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg text-sm">
                         <i class="fas fa-share mr-1"></i>

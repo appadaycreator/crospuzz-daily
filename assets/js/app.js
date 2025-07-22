@@ -38,6 +38,7 @@ const translations = {
         check_answers: '答え合わせ',
         check: '確認',
         reset: 'リセット',
+        initialize: '初期化',
         share: 'シェア',
         recommended: 'おすすめ',
         brain_training_books: '脳トレ本特集',
@@ -75,6 +76,7 @@ const translations = {
         check_answers: 'Check Answers',
         check: 'Check',
         reset: 'Reset',
+        initialize: 'Initialize',
         share: 'Share',
         recommended: 'Recommended',
         brain_training_books: 'Brain Training Books',
@@ -98,49 +100,131 @@ const translations = {
 // Sample puzzle data
 const puzzleData = {
     grid: [
-        [1, 0, 2, 0, 3, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0],
-        [4, 0, 0, 0, 5, 0, 6],
-        [0, 0, 0, 0, 0, 0, 0],
-        [7, 0, 0, 0, 0, 0, 0],
-        [0, 0, 8, 0, 9, 0, 0],
-        [0, 0, 0, 0, 0, 0, 10]
+        [1, 2, 3, 4, 5, 6, 7],
+        [8, 0, 9, 0, 10, 0, 11],
+        [12, 0, 13, 0, 14, 0, 15],
+        [16, 0, 17, 0, 18, 0, 19],
+        [20, 0, 21, 0, 22, 0, 23],
+        [24, 0, 25, 0, 26, 0, 27],
+        [28, 29, 30, 31, 32, 33, 34]
     ],
     blocked: [
-        [false, true, false, true, false, true, true],
-        [true, true, true, true, true, true, true],
-        [false, true, true, true, false, true, false],
-        [true, true, true, true, true, true, true],
-        [false, true, true, true, true, true, true],
-        [true, true, false, true, false, true, true],
-        [true, true, true, true, true, true, false]
+        [false, false, false, false, false, false, false],
+        [false, true, false, true, false, true, false],
+        [false, true, false, true, false, true, false],
+        [false, true, false, true, false, true, false],
+        [false, true, false, true, false, true, false],
+        [false, true, false, true, false, true, false],
+        [false, false, false, false, false, false, false]
     ],
     answers: {
-        1: 'あさ',
-        2: 'うみ',
-        3: 'き',
-        4: 'あい',
-        5: 'いし',
-        6: 'み',
-        7: 'あき',
-        8: 'そら',
-        9: 'しお',
-        10: 'お'
+        1: 'さくら',
+        2: 'うめ',
+        3: 'もも',
+        4: 'すみれ',
+        5: 'あじさい',
+        6: 'きく',
+        7: 'ばら',
+        8: 'すいか',
+        9: 'いちご',
+        10: 'なし',
+        11: 'ぶどう',
+        12: 'たけ',
+        13: 'まつ',
+        14: 'かえで',
+        15: 'もみじ',
+        16: 'ゆり',
+        17: 'ひまわり',
+        18: 'チューリップ',
+        19: 'ひなぎく',
+        20: 'あさがお',
+        21: 'かすみそう',
+        22: 'なでしこ',
+        23: 'さくらそう',
+        24: 'つつじ',
+        25: 'あじさい',
+        26: 'きく',
+        27: 'ばら',
+        28: 'さくら',
+        29: 'うめ',
+        30: 'もも',
+        31: 'すみれ',
+        32: 'あじさい',
+        33: 'きく',
+        34: 'ばら'
     },
     clues: {
         across: {
-            1: '朝の略',
-            4: '愛情',
-            7: '秋の季節'
+            1: '春に咲く日本の代表的な花',
+            2: '早春に咲く花、白やピンク',
+            3: '桃の節句の花',
+            4: '紫色の小さな花',
+            5: '梅雨時に咲く花',
+            6: '秋の花、重陽の節句',
+            7: 'トゲのある花、バラ',
+            8: '夏の果物、赤くて甘い',
+            9: '赤い小さな果物、ショートケーキにのる',
+            10: '梨のこと',
+            11: '紫色の房になる果物',
+            12: '竹のこと',
+            13: '松の木',
+            14: '秋に紅葉する木',
+            15: '秋の紅葉の代表格',
+            16: '白や黄色の花、ユリ',
+            17: '大きな黄色い花、夏の花',
+            18: '春の花、球根植物',
+            19: '春の花、デイジー',
+            20: '朝顔の花',
+            21: '春の花、カスミソウ',
+            22: 'ピンクの花、ナデシコ',
+            23: '桜草の花',
+            24: '春の花、ツツジ',
+            25: '梅雨の花、アジサイ',
+            26: '秋の花、菊',
+            27: 'バラの花',
+            28: '日本の春の象徴的な花',
+            29: '早春の花、梅',
+            30: '桃の花',
+            31: '春の花、スミレ',
+            32: '梅雨の花',
+            33: '秋の花、菊',
+            34: 'バラの花'
         },
         down: {
-            2: '海水の水',
-            3: '木の植物',
-            5: '石の物質',
-            6: '身の一部',
-            8: '空の青',
-            9: '塩の調味料',
-            10: '王の略'
+            1: '日本の春の象徴的な花',
+            2: '早春の花、梅',
+            3: '桃の花',
+            4: '春の花、スミレ',
+            5: '梅雨の花',
+            6: '秋の花、菊',
+            7: 'バラの花',
+            8: '夏の果物、スイカ',
+            9: '赤い果物、イチゴ',
+            10: '梨の果物',
+            11: '紫色の果物、ブドウ',
+            12: '竹の植物',
+            13: '松の木',
+            14: '紅葉する木、カエデ',
+            15: '紅葉の木、モミジ',
+            16: 'ユリの花',
+            17: 'ヒマワリの花',
+            18: 'チューリップの花',
+            19: 'ヒナギクの花',
+            20: 'アサガオの花',
+            21: 'カスミソウの花',
+            22: 'ナデシコの花',
+            23: 'サクラソウの花',
+            24: 'ツツジの花',
+            25: 'アジサイの花',
+            26: 'キクの花',
+            27: 'バラの花',
+            28: '春の桜',
+            29: '春の梅',
+            30: '春の桃',
+            31: '春のスミレ',
+            32: '梅雨のアジサイ',
+            33: '秋のキク',
+            34: '春のバラ'
         }
     }
 };
@@ -150,7 +234,6 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('CrosPuzz アプリケーション開始');
     loadSettings();
     initializeGame();
-    startTimer();
     
     // PWA service worker registration
     if ('serviceWorker' in navigator) {
@@ -196,12 +279,33 @@ function saveSettings() {
 }
 
 // Initialize game
-function initializeGame() {
-    console.log('ゲーム初期化開始');
+function initializeGame(forceInit = false) {
+    if (forceInit) {
+        // 完全初期化: ローカルストレージと状態をクリア
+        localStorage.removeItem('crospuzz_game_state');
+        localStorage.removeItem('crospuzz_settings');
+        gameStartTime = null;
+        hintsRemaining = 3;
+        currentCell = null;
+        currentDirection = 'across';
+        // 設定もデフォルトに
+        currentLanguage = 'ja';
+        currentFontSize = 'base';
+        isDarkMode = false;
+        document.documentElement.classList.remove('dark');
+        document.body.className = document.body.className.replace(/font-size-\w+/, '');
+        document.body.classList.add('font-size-base');
+        updateTranslations();
+    }
     createGrid();
     createClues();
     loadGameState();
     updateProgress();
+    startTimer();
+    document.getElementById('hintsRemaining').textContent = hintsRemaining;
+    if (forceInit) {
+        alert(currentLanguage === 'ja' ? '全て初期化しました' : 'All data has been initialized');
+    }
 }
 
 // Create crossword grid
@@ -216,6 +320,12 @@ function createGrid() {
             cell.maxLength = 1;
             cell.className = 'crossword-cell';
             cell.id = `cell-${row}-${col}`;
+            cell.setAttribute('inputmode', 'text');
+            cell.setAttribute('lang', 'ja');
+            cell.setAttribute('autocomplete', 'off');
+            cell.setAttribute('autocorrect', 'off');
+            cell.setAttribute('autocapitalize', 'off');
+            cell.setAttribute('spellcheck', 'false');
             
             if (puzzleData.blocked[row][col]) {
                 cell.className += ' blocked';
@@ -232,21 +342,16 @@ function createGrid() {
                 const numberSpan = document.createElement('span');
                 numberSpan.className = 'cell-number';
                 numberSpan.textContent = number;
-                cell.parentNode = grid;
-                cell.appendChild = function(child) {
-                    this.nextElementSibling = child;
-                };
-                setTimeout(() => {
-                    const wrapper = document.createElement('div');
-                    wrapper.style.position = 'relative';
-                    wrapper.appendChild(cell);
-                    wrapper.appendChild(numberSpan);
-                    grid.appendChild(wrapper);
-                }, 0);
-                continue;
+                
+                // Create wrapper for numbered cell
+                const wrapper = document.createElement('div');
+                wrapper.style.position = 'relative';
+                wrapper.appendChild(cell);
+                wrapper.appendChild(numberSpan);
+                grid.appendChild(wrapper);
+            } else {
+                grid.appendChild(cell);
             }
-            
-            grid.appendChild(cell);
         }
     }
     console.log('グリッド作成完了');
@@ -289,24 +394,32 @@ function createClues() {
 // Handle cell input
 function handleCellInput(event) {
     const cell = event.target;
-    const value = event.target.value.toUpperCase();
+    const value = event.target.value;
     
     // Only allow Japanese characters or letters
-    if (value && !/[あ-んア-ンA-Za-z]/.test(value)) {
+    if (value && !/[あ-んア-ンA-Za-z\u3040-\u309F\u30A0-\u30FF]/.test(value)) {
         event.target.value = '';
         return;
     }
     
-    event.target.value = value;
+    // Convert to hiragana if it's katakana
+    let processedValue = value;
+    if (value && /[ア-ン]/.test(value)) {
+        processedValue = value.replace(/[ア-ン]/g, function(match) {
+            return String.fromCharCode(match.charCodeAt(0) - 0x60);
+        });
+    }
+    
+    event.target.value = processedValue;
     saveGameState();
     updateProgress();
     
     // Move to next cell
-    if (value) {
+    if (processedValue) {
         moveToNextCell(cell);
     }
     
-    console.log(`セル入力: ${cell.id} = ${value}`);
+    console.log(`セル入力: ${cell.id} = ${processedValue}`);
 }
 
 // Handle cell focus
