@@ -2,52 +2,242 @@
 // Version: 1.0.0
 // Author: AppAdayCreator
 
-// Global variables
-let currentLanguage = 'ja';
-let currentFontSize = 'base';
-let isDarkMode = false;
-let gameStartTime = null;
-let timerInterval = null;
-let hintsRemaining = 3;
-let currentCell = null;
-let currentDirection = 'across';
-let gameState = {
-    grid: [],
-    userAnswers: {},
-    completed: false
-};
+// パズルデータ
+const puzzles = [
+  {
+    title: "日本のシンボル",
+    words: [
+      { answer: "さくら", clue: "春に咲く花" },
+      { answer: "ふじさん", clue: "日本一高い山" },
+      { answer: "すし", clue: "酢飯とネタ" },
+      { answer: "まつり", clue: "伝統的なイベント" },
+      { answer: "きもの", clue: "和装" }
+    ]
+  },
+  {
+    title: "日本の食べ物",
+    words: [
+      { answer: "らーめん", clue: "人気の麺料理" },
+      { answer: "すし", clue: "酢飯とネタ" },
+      { answer: "てんぷら", clue: "揚げ衣がサクサク" },
+      { answer: "おにぎり", clue: "三角や丸で握る" },
+      { answer: "うどん", clue: "太めの小麦麺" }
+    ]
+  },
+  {
+    title: "動物",
+    words: [
+      { answer: "ねこ", clue: "気まぐれなペット" },
+      { answer: "いぬ", clue: "忠実なペット" },
+      { answer: "きつね", clue: "狐" },
+      { answer: "たぬき", clue: "ぽんぽこ" },
+      { answer: "うさぎ", clue: "耳が長い" }
+    ]
+  },
+  {
+    title: "スポーツ",
+    words: [
+      { answer: "やきゅう", clue: "9人で戦う球技" },
+      { answer: "さっかー", clue: "11人で戦う球技" },
+      { answer: "すもう", clue: "土俵での格闘技" },
+      { answer: "てにす", clue: "ラケットを使う" },
+      { answer: "ごるふ", clue: "18ホールを回る" }
+    ]
+  },
+  {
+    title: "乗り物",
+    words: [
+      { answer: "しんかんせん", clue: "日本の高速鉄道" },
+      { answer: "じてんしゃ", clue: "ペダルをこぐ" },
+      { answer: "くるま", clue: "四輪" },
+      { answer: "ひこうき", clue: "空を飛ぶ" },
+      { answer: "ふね", clue: "海を進む" }
+    ]
+  },
+  {
+    title: "季節",
+    words: [
+      { answer: "はる", clue: "桜の季節" },
+      { answer: "なつ", clue: "海水浴" },
+      { answer: "あき", clue: "紅葉" },
+      { answer: "ふゆ", clue: "雪" },
+      { answer: "つゆ", clue: "梅雨" }
+    ]
+  },
+  {
+    title: "都道府県",
+    words: [
+      { answer: "とうきょう", clue: "日本の首都" },
+      { answer: "おおさか", clue: "関西の大都市" },
+      { answer: "ほっかいどう", clue: "日本最北の道" },
+      { answer: "ふくおか", clue: "博多ラーメン" },
+      { answer: "ひろしま", clue: "平和記念公園" }
+    ]
+  },
+  {
+    title: "色",
+    words: [
+      { answer: "あか", clue: "情熱の色" },
+      { answer: "あお", clue: "空や海の色" },
+      { answer: "きいろ", clue: "ひまわりの色" },
+      { answer: "みどり", clue: "草木の色" },
+      { answer: "しろ", clue: "雪の色" }
+    ]
+  },
+  {
+    title: "家電",
+    words: [
+      { answer: "でんしれんじ", clue: "チン！" },
+      { answer: "そうじき", clue: "吸い取る" },
+      { answer: "せんたくき", clue: "衣類を洗う" },
+      { answer: "でんき", clue: "明かり" },
+      { answer: "てれび", clue: "映像を見る" }
+    ]
+  },
+  {
+    title: "IT 用語",
+    words: [
+      { answer: "くらうど", clue: "雲のサービス" },
+      { answer: "さーばー", clue: "サービスを提供" },
+      { answer: "ふぁいあうぉーる", clue: "防火壁" },
+      { answer: "でーたべーす", clue: "DB" },
+      { answer: "ぷろぐらむ", clue: "コード" }
+    ]
+  }
+];
 
-// Translations
+// 動的パズル生成ロジック
+function createEmptyGrid(size) {
+  return Array.from({ length: size }, () => Array(size).fill(""));
+}
+
+function canPlace(grid, word, r, c, dir) {
+  const size = grid.length;
+  if (dir === "across") {
+    if (c + word.length > size) return false;
+    for (let i = 0; i < word.length; i++) {
+      const cell = grid[r][c + i];
+      if (cell && cell !== word[i]) return false;
+      if (cell === "#") return false;
+    }
+    return true;
+  }
+  // down
+  if (r + word.length > size) return false;
+  for (let i = 0; i < word.length; i++) {
+    const cell = grid[r + i][c];
+    if (cell && cell !== word[i]) return false;
+    if (cell === "#") return false;
+  }
+  return true;
+}
+
+function placeWord(grid, word, r, c, dir) {
+  if (dir === "across") {
+    for (let i = 0; i < word.length; i++) grid[r][c + i] = word[i];
+  } else {
+    for (let i = 0; i < word.length; i++) grid[r + i][c] = word[i];
+  }
+}
+
+function generatePuzzle(puzzle) {
+  const longest = Math.max(...puzzle.words.map(w => w.answer.length));
+  let size = Math.max(9, longest + 4);
+  let grid = createEmptyGrid(size);
+
+  const words = [...puzzle.words].sort((a, b) => b.answer.length - a.answer.length);
+
+  // 1語目を中央横配置
+  const first = words[0].answer;
+  const startCol = Math.floor((size - first.length) / 2);
+  const midRow = Math.floor(size / 2);
+  placeWord(grid, first, midRow, startCol, "across");
+  const placed = [ { ...words[0], row: midRow, col: startCol, dir: "across" } ];
+
+  // 残りを順に試行
+  outer: for (let wi = 1; wi < words.length; wi++) {
+    const w = words[wi].answer;
+    for (const placedWord of placed) {
+      for (let pi = 0; pi < placedWord.answer.length; pi++) {
+        const pChar = placedWord.answer[pi];
+        for (let wiChar = 0; wiChar < w.length; wiChar++) {
+          if (w[wiChar] !== pChar) continue;
+          let r, c, dir;
+          if (placedWord.dir === "across") {
+            dir = "down";
+            r = placedWord.row - wiChar;
+            c = placedWord.col + pi;
+          } else {
+            dir = "across";
+            r = placedWord.row + pi;
+            c = placedWord.col - wiChar;
+          }
+          if (r < 0 || c < 0) continue;
+          if (canPlace(grid, w, r, c, dir)) {
+            placeWord(grid, w, r, c, dir);
+            placed.push({ ...words[wi], row: r, col: c, dir, answer: w });
+            continue outer;
+          }
+        }
+      }
+    }
+    // 置けなければ行単位で探して横に置く
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if (canPlace(grid, w, r, c, "across")) {
+          placeWord(grid, w, r, c, "across");
+          placed.push({ ...words[wi], row: r, col: c, dir: "across", answer: w });
+          continue outer;
+        }
+      }
+    }
+  }
+
+  // 未使用セルを黒マスに
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (grid[r][c] === "") grid[r][c] = "#";
+    }
+  }
+
+  // 番号付与
+  let num = 1;
+  const numbering = {};
+  const across = [], down = [];
+  for (const w of placed) {
+    let { row, col, dir, clue, answer } = w;
+    if (!numbering[`${row},${col}`]) {
+      numbering[`${row},${col}`] = num++;
+    }
+    const no = numbering[`${row},${col}`];
+    if (dir === "across") {
+      across.push({ number: no, clue: w.clue, answer });
+    } else {
+      down.push({ number: no, clue: w.clue, answer });
+    }
+  }
+
+  return { grid, across, down };
+}
+
+// グローバル変数
+let currentPuzzle = null;
+let answerMap = {};
+let currentPuzzleIndex = 0;
+
+// 翻訳データ
 const translations = {
     ja: {
-        nav_game: 'ゲーム',
-        nav_howto: '使い方',
-        nav_privacy: 'プライバシー',
-        nav_contact: 'お問い合わせ',
-        menu: 'メニュー',
-        font_xs: '極小',
-        font_sm: '小',
-        font_base: '標準',
-        font_lg: '大',
-        font_xl: '特大',
-        game_status: 'ゲーム状況',
+        daily_puzzle: '今日のパズル',
+        puzzle_date: '2024年1月15日',
+        beginner: '初級',
         elapsed_time: '経過時間',
         progress: '進捗',
-        cells_filled: 'マス入力済み',
         hint: 'ヒント',
-        check_answers: '答え合わせ',
         check: '確認',
         reset: 'リセット',
         initialize: '初期化',
         share: 'シェア',
-        recommended: 'おすすめ',
-        brain_training_books: '脳トレ本特集',
-        brain_training_desc: 'クロスワードパズル集',
-        dictionary: '国語辞典・辞書',
-        dictionary_desc: '語彙力アップに',
-        daily_puzzle: '今日のパズル',
-        puzzle_date: '2024年1月15日',
-        beginner: '初級',
         across: 'ヨコのカギ',
         down: 'タテのカギ',
         congratulations: 'おめでとうございます！',
@@ -55,37 +245,25 @@ const translations = {
         completion_time: '完了時間',
         hints_used: '使用ヒント',
         share_results: '結果をシェア',
-        close: '閉じる'
+        close: '閉じる',
+        recommended: 'おすすめ',
+        brain_training_books: '脳トレ本特集',
+        brain_training_desc: 'クロスワードパズル集',
+        dictionary: '国語辞典・辞書',
+        dictionary_desc: '語彙力アップに',
+        puzzle_select: 'パズル選択'
     },
     en: {
-        nav_game: 'Game',
-        nav_howto: 'How to',
-        nav_privacy: 'Privacy',
-        nav_contact: 'Contact',
-        menu: 'Menu',
-        font_xs: 'XS',
-        font_sm: 'Small',
-        font_base: 'Normal',
-        font_lg: 'Large',
-        font_xl: 'XL',
-        game_status: 'Game Status',
+        daily_puzzle: 'Today\'s Puzzle',
+        puzzle_date: 'January 15, 2024',
+        beginner: 'Beginner',
         elapsed_time: 'Elapsed Time',
         progress: 'Progress',
-        cells_filled: 'Cells Filled',
         hint: 'Hint',
-        check_answers: 'Check Answers',
         check: 'Check',
         reset: 'Reset',
         initialize: 'Initialize',
         share: 'Share',
-        recommended: 'Recommended',
-        brain_training_books: 'Brain Training Books',
-        brain_training_desc: 'Crossword Collections',
-        dictionary: 'Dictionary',
-        dictionary_desc: 'Improve Vocabulary',
-        daily_puzzle: "Today's Puzzle",
-        puzzle_date: 'January 15, 2024',
-        beginner: 'Beginner',
         across: 'Across',
         down: 'Down',
         congratulations: 'Congratulations!',
@@ -93,146 +271,30 @@ const translations = {
         completion_time: 'Completion Time',
         hints_used: 'Hints Used',
         share_results: 'Share Results',
-        close: 'Close'
+        close: 'Close',
+        recommended: 'Recommended',
+        brain_training_books: 'Brain Training Books',
+        brain_training_desc: 'Crossword Puzzle Collection',
+        dictionary: 'Dictionary',
+        dictionary_desc: 'Improve Vocabulary',
+        puzzle_select: 'Puzzle Selection'
     }
 };
 
-// Sample puzzle data
-const puzzleData = {
-    grid: [
-        [1, 2, 3, 4, 5, 6, 7],
-        [8, 0, 9, 0, 10, 0, 11],
-        [12, 0, 13, 0, 14, 0, 15],
-        [16, 0, 17, 0, 18, 0, 19],
-        [20, 0, 21, 0, 22, 0, 23],
-        [24, 0, 25, 0, 26, 0, 27],
-        [28, 29, 30, 31, 32, 33, 34]
-    ],
-    blocked: [
-        [false, false, false, false, false, false, false],
-        [false, true, false, true, false, true, false],
-        [false, true, false, true, false, true, false],
-        [false, true, false, true, false, true, false],
-        [false, true, false, true, false, true, false],
-        [false, true, false, true, false, true, false],
-        [false, false, false, false, false, false, false]
-    ],
-    answers: {
-        1: 'さくら',
-        2: 'うめ',
-        3: 'もも',
-        4: 'すみれ',
-        5: 'あじさい',
-        6: 'きく',
-        7: 'ばら',
-        8: 'すいか',
-        9: 'いちご',
-        10: 'なし',
-        11: 'ぶどう',
-        12: 'たけ',
-        13: 'まつ',
-        14: 'かえで',
-        15: 'もみじ',
-        16: 'ゆり',
-        17: 'ひまわり',
-        18: 'チューリップ',
-        19: 'ひなぎく',
-        20: 'あさがお',
-        21: 'かすみそう',
-        22: 'なでしこ',
-        23: 'さくらそう',
-        24: 'つつじ',
-        25: 'あじさい',
-        26: 'きく',
-        27: 'ばら',
-        28: 'さくら',
-        29: 'うめ',
-        30: 'もも',
-        31: 'すみれ',
-        32: 'あじさい',
-        33: 'きく',
-        34: 'ばら'
-    },
-    clues: {
-        across: {
-            1: '春に咲く日本の代表的な花',
-            2: '早春に咲く花、白やピンク',
-            3: '桃の節句の花',
-            4: '紫色の小さな花',
-            5: '梅雨時に咲く花',
-            6: '秋の花、重陽の節句',
-            7: 'トゲのある花、バラ',
-            8: '夏の果物、赤くて甘い',
-            9: '赤い小さな果物、ショートケーキにのる',
-            10: '梨のこと',
-            11: '紫色の房になる果物',
-            12: '竹のこと',
-            13: '松の木',
-            14: '秋に紅葉する木',
-            15: '秋の紅葉の代表格',
-            16: '白や黄色の花、ユリ',
-            17: '大きな黄色い花、夏の花',
-            18: '春の花、球根植物',
-            19: '春の花、デイジー',
-            20: '朝顔の花',
-            21: '春の花、カスミソウ',
-            22: 'ピンクの花、ナデシコ',
-            23: '桜草の花',
-            24: '春の花、ツツジ',
-            25: '梅雨の花、アジサイ',
-            26: '秋の花、菊',
-            27: 'バラの花',
-            28: '日本の春の象徴的な花',
-            29: '早春の花、梅',
-            30: '桃の花',
-            31: '春の花、スミレ',
-            32: '梅雨の花',
-            33: '秋の花、菊',
-            34: 'バラの花'
-        },
-        down: {
-            1: '日本の春の象徴的な花',
-            2: '早春の花、梅',
-            3: '桃の花',
-            4: '春の花、スミレ',
-            5: '梅雨の花',
-            6: '秋の花、菊',
-            7: 'バラの花',
-            8: '夏の果物、スイカ',
-            9: '赤い果物、イチゴ',
-            10: '梨の果物',
-            11: '紫色の果物、ブドウ',
-            12: '竹の植物',
-            13: '松の木',
-            14: '紅葉する木、カエデ',
-            15: '紅葉の木、モミジ',
-            16: 'ユリの花',
-            17: 'ヒマワリの花',
-            18: 'チューリップの花',
-            19: 'ヒナギクの花',
-            20: 'アサガオの花',
-            21: 'カスミソウの花',
-            22: 'ナデシコの花',
-            23: 'サクラソウの花',
-            24: 'ツツジの花',
-            25: 'アジサイの花',
-            26: 'キクの花',
-            27: 'バラの花',
-            28: '春の桜',
-            29: '春の梅',
-            30: '春の桃',
-            31: '春のスミレ',
-            32: '梅雨のアジサイ',
-            33: '秋のキク',
-            34: '春のバラ'
-        }
-    }
-};
+// 現在の言語設定
+let currentLanguage = 'ja';
+let currentFontSize = 'base';
+let isDarkMode = false;
+let gameStartTime = null;
+let hintsRemaining = 3;
+let currentCell = null;
+let currentDirection = 'across';
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
     console.log('CrosPuzz アプリケーション開始');
     loadSettings();
+    initializePuzzleSelect();
     initializeGame();
     
     // PWA service worker registration
@@ -242,6 +304,24 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(err => console.log('Service Worker registration failed'));
     }
 });
+
+// パズル選択の初期化
+function initializePuzzleSelect() {
+    const select = document.getElementById('puzzleSelect');
+    if (!select) return;
+    
+    puzzles.forEach((puzzle, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${index + 1}. ${puzzle.title}`;
+        select.appendChild(option);
+    });
+    
+    select.addEventListener('change', function(e) {
+        const selectedIndex = parseInt(e.target.value);
+        selectPuzzle(selectedIndex);
+    });
+}
 
 // Load saved settings
 function loadSettings() {
@@ -297,93 +377,111 @@ function initializeGame(forceInit = false) {
         document.body.classList.add('font-size-base');
         updateTranslations();
     }
-    createGrid();
-    createClues();
+    renderPuzzle(currentPuzzleIndex);
     loadGameState();
     updateProgress();
     startTimer();
-    document.getElementById('hintsRemaining').textContent = hintsRemaining;
+    const hintsRemainingEl = document.getElementById('hintsRemaining');
+    if (hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining;
     if (forceInit) {
         alert(currentLanguage === 'ja' ? '全て初期化しました' : 'All data has been initialized');
     }
 }
 
-// Create crossword grid
-function createGrid() {
-    const grid = document.getElementById('crosswordGrid');
-    grid.innerHTML = '';
+// パズル描画
+function renderPuzzle(index) {
+    const target = document.getElementById('crosswordGrid');
+    target.innerHTML = '';
     
-    for (let row = 0; row < 7; row++) {
-        for (let col = 0; col < 7; col++) {
-            const cell = document.createElement('input');
-            cell.type = 'text';
-            cell.maxLength = 1;
+    const data = generatePuzzle(puzzles[index]);
+    currentPuzzle = data;
+    answerMap = {};
+    currentPuzzleIndex = index;
+
+    const size = data.grid.length;
+    const gridEl = document.createElement('div');
+    gridEl.className = 'crossword-grid';
+    gridEl.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+
+    const numberMap = {};
+    let num = 1;
+    
+    for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+            const ch = data.grid[r][c];
+            const cell = document.createElement('div');
             cell.className = 'crossword-cell';
-            cell.id = `cell-${row}-${col}`;
-            cell.setAttribute('inputmode', 'text');
-            cell.setAttribute('lang', 'ja');
-            cell.setAttribute('autocomplete', 'off');
-            cell.setAttribute('autocorrect', 'off');
-            cell.setAttribute('autocapitalize', 'off');
-            cell.setAttribute('spellcheck', 'false');
             
-            if (puzzleData.blocked[row][col]) {
-                cell.className += ' blocked';
-                cell.disabled = true;
+            if (ch === '#') {
+                cell.classList.add('blocked');
             } else {
-                cell.addEventListener('input', handleCellInput);
-                cell.addEventListener('focus', handleCellFocus);
-                cell.addEventListener('keydown', handleKeydown);
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.maxLength = 1;
+                input.className = 'cell-input';
+                input.setAttribute('inputmode', 'text');
+                input.setAttribute('lang', 'ja');
+                input.setAttribute('autocomplete', 'off');
+                input.setAttribute('autocorrect', 'off');
+                input.setAttribute('autocapitalize', 'off');
+                input.setAttribute('spellcheck', 'false');
+                input.addEventListener('input', handleCellInput);
+                input.addEventListener('focus', handleCellFocus);
+                input.addEventListener('keydown', handleKeydown);
+                cell.appendChild(input);
+                answerMap[`${r},${c}`] = ch;
             }
             
-            // Add number if it's a numbered cell
-            const number = puzzleData.grid[row][col];
-            if (number > 0) {
-                const numberSpan = document.createElement('span');
-                numberSpan.className = 'cell-number';
-                numberSpan.textContent = number;
-                
-                // Create wrapper for numbered cell
-                const wrapper = document.createElement('div');
-                wrapper.style.position = 'relative';
-                wrapper.appendChild(cell);
-                wrapper.appendChild(numberSpan);
-                grid.appendChild(wrapper);
-            } else {
-                grid.appendChild(cell);
+            // 番号表示
+            const isAcrossStart = ch !== '#' && (c === 0 || data.grid[r][c - 1] === '#');
+            const isDownStart = ch !== '#' && (r === 0 || data.grid[r - 1][c] === '#');
+            if (isAcrossStart || isDownStart) {
+                numberMap[`${r},${c}`] = num;
+                const no = document.createElement('span');
+                no.className = 'cell-number';
+                no.textContent = num++;
+                cell.appendChild(no);
             }
+            
+            gridEl.appendChild(cell);
         }
     }
-    console.log('グリッド作成完了');
+
+    target.appendChild(gridEl);
+
+    // ヒント描画
+    createClues(data);
+    
+    console.log('パズル描画完了:', index);
 }
 
 // Create clues
-function createClues() {
+function createClues(data) {
     const acrossContainer = document.getElementById('acrossClues');
     const downContainer = document.getElementById('downClues');
     
     // Across clues
     acrossContainer.innerHTML = '';
-    Object.entries(puzzleData.clues.across).forEach(([number, clue]) => {
+    data.across.sort((a,b) => a.number - b.number).forEach(item => {
         const clueElement = document.createElement('div');
         clueElement.className = 'flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors clue-item';
-        clueElement.onclick = () => highlightWord(parseInt(number), 'across');
+        clueElement.onclick = () => highlightWord(item.number, 'across');
         clueElement.innerHTML = `
-            <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-bold">${number}</span>
-            <span class="text-gray-700 dark:text-gray-300">${clue}</span>
+            <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-bold">${item.number}</span>
+            <span class="text-gray-700 dark:text-gray-300">${item.clue}</span>
         `;
         acrossContainer.appendChild(clueElement);
     });
     
     // Down clues
     downContainer.innerHTML = '';
-    Object.entries(puzzleData.clues.down).forEach(([number, clue]) => {
+    data.down.sort((a,b) => a.number - b.number).forEach(item => {
         const clueElement = document.createElement('div');
         clueElement.className = 'flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors clue-item';
-        clueElement.onclick = () => highlightWord(parseInt(number), 'down');
+        clueElement.onclick = () => highlightWord(item.number, 'down');
         clueElement.innerHTML = `
-            <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-bold">${number}</span>
-            <span class="text-gray-700 dark:text-gray-300">${clue}</span>
+            <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-bold">${item.number}</span>
+            <span class="text-gray-700 dark:text-gray-300">${item.clue}</span>
         `;
         downContainer.appendChild(clueElement);
     });
@@ -465,99 +563,131 @@ function handleKeydown(event) {
 
 // Move focus to adjacent cell
 function moveFocus(currentCell, rowDelta, colDelta) {
-    const [currentRow, currentCol] = currentCell.id.split('-').slice(1).map(Number);
+    const cells = Array.from(document.querySelectorAll('.cell-input'));
+    const currentIndex = cells.indexOf(currentCell);
+    const size = Math.sqrt(cells.length);
+    const currentRow = Math.floor(currentIndex / size);
+    const currentCol = currentIndex % size;
+    
     const newRow = currentRow + rowDelta;
     const newCol = currentCol + colDelta;
     
-    if (newRow >= 0 && newRow < 7 && newCol >= 0 && newCol < 7) {
-        const newCell = document.getElementById(`cell-${newRow}-${newCol}`);
-        if (newCell && !newCell.disabled) {
-            newCell.focus();
+    if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
+        const newIndex = newRow * size + newCol;
+        if (cells[newIndex] && !cells[newIndex].parentElement.classList.contains('blocked')) {
+            cells[newIndex].focus();
         }
     }
 }
 
-// Move to next cell in current direction
+// Move to next cell
 function moveToNextCell(cell) {
-    const [row, col] = cell.id.split('-').slice(1).map(Number);
+    const cells = Array.from(document.querySelectorAll('.cell-input'));
+    const currentIndex = cells.indexOf(cell);
+    const nextIndex = currentIndex + 1;
     
-    if (currentDirection === 'across') {
-        moveFocus(cell, 0, 1);
-    } else {
-        moveFocus(cell, 1, 0);
+    if (nextIndex < cells.length && !cells[nextIndex].parentElement.classList.contains('blocked')) {
+        cells[nextIndex].focus();
     }
 }
 
 // Move to previous cell
 function moveToPreviousCell(cell) {
-    const [row, col] = cell.id.split('-').slice(1).map(Number);
+    const cells = Array.from(document.querySelectorAll('.cell-input'));
+    const currentIndex = cells.indexOf(cell);
+    const prevIndex = currentIndex - 1;
     
-    if (currentDirection === 'across') {
-        moveFocus(cell, 0, -1);
-    } else {
-        moveFocus(cell, -1, 0);
+    if (prevIndex >= 0 && !cells[prevIndex].parentElement.classList.contains('blocked')) {
+        cells[prevIndex].focus();
+        cells[prevIndex].value = '';
     }
 }
 
 // Highlight current word
 function highlightCurrentWord() {
-    // Remove existing highlights
+    if (!currentCell) return;
+    
+    // Remove previous highlights
     document.querySelectorAll('.crossword-cell').forEach(cell => {
-        cell.classList.remove('highlighted', 'active');
+        cell.classList.remove('highlighted');
     });
     
-    if (currentCell) {
-        currentCell.classList.add('active');
-        // Add highlighting logic for current word
+    // Highlight current word
+    const cells = Array.from(document.querySelectorAll('.cell-input'));
+    const currentIndex = cells.indexOf(currentCell);
+    const size = Math.sqrt(cells.length);
+    const currentRow = Math.floor(currentIndex / size);
+    const currentCol = currentIndex % size;
+    
+    // Find word boundaries and highlight
+    let startCol = currentCol;
+    let endCol = currentCol;
+    
+    // Find start of word
+    while (startCol > 0 && !cells[currentRow * size + startCol - 1].parentElement.classList.contains('blocked')) {
+        startCol--;
+    }
+    
+    // Find end of word
+    while (endCol < size - 1 && !cells[currentRow * size + endCol + 1].parentElement.classList.contains('blocked')) {
+        endCol++;
+    }
+    
+    // Highlight word
+    for (let col = startCol; col <= endCol; col++) {
+        const cellIndex = currentRow * size + col;
+        if (cells[cellIndex]) {
+            cells[cellIndex].parentElement.classList.add('highlighted');
+        }
     }
 }
 
 // Highlight word by number and direction
 function highlightWord(number, direction) {
-    document.querySelectorAll('.crossword-cell').forEach(cell => {
-        cell.classList.remove('highlighted', 'active');
-    });
-    
-    currentDirection = direction;
-    console.log(`単語ハイライト: ${number} (${direction})`);
+    // Implementation for highlighting specific words
+    console.log(`Highlighting word ${number} in direction ${direction}`);
 }
 
 // Update progress
 function updateProgress() {
-    const cells = document.querySelectorAll('.crossword-cell:not(.blocked)');
-    const filledCells = Array.from(cells).filter(cell => cell.value.trim() !== '').length;
-    const totalCells = cells.length;
-    const progress = Math.round((filledCells / totalCells) * 100);
+    const inputs = document.querySelectorAll('.cell-input');
+    let filledCells = 0;
+    let totalCells = 0;
     
-    // Update progress bar
-    const progressBar = document.getElementById('progressBar');
+    inputs.forEach(input => {
+        if (input.value) {
+            filledCells++;
+        }
+        totalCells++;
+    });
+    
+    const progress = totalCells > 0 ? Math.round((filledCells / totalCells) * 100) : 0;
     const progressText = document.getElementById('progressText');
     const mobileProgress = document.getElementById('mobileProgress');
-    const filledCellsSpan = document.getElementById('filledCells');
-    const totalCellsSpan = document.getElementById('totalCells');
+    const progressBar = document.getElementById('progressBar');
     
-    if (progressBar) progressBar.style.width = `${progress}%`;
     if (progressText) progressText.textContent = `${progress}%`;
     if (mobileProgress) mobileProgress.textContent = `${progress}%`;
-    if (filledCellsSpan) filledCellsSpan.textContent = filledCells;
-    if (totalCellsSpan) totalCellsSpan.textContent = totalCells;
+    if (progressBar) progressBar.style.width = `${progress}%`;
     
-    console.log(`進捗更新: ${filledCells}/${totalCells} (${progress}%)`);
+    // Check if puzzle is complete
+    if (progress === 100) {
+        showSuccessModal();
+    }
 }
 
 // Start timer
 function startTimer() {
-    if (gameStartTime === null) {
+    if (!gameStartTime) {
         gameStartTime = Date.now();
     }
-    
-    timerInterval = setInterval(updateTimer, 1000);
-    console.log('タイマー開始');
+    updateTimer();
+    setInterval(updateTimer, 1000);
 }
 
-// Update timer display
+// Update timer
 function updateTimer() {
-    if (gameStartTime === null) return;
+    if (!gameStartTime) return;
     
     const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
     const minutes = Math.floor(elapsed / 60);
@@ -573,83 +703,79 @@ function updateTimer() {
 
 // Show hint
 function showHint() {
-    if (hintsRemaining <= 0) {
+    if (hintsRemaining > 0) {
+        const inputs = document.querySelectorAll('.cell-input');
+        const emptyCells = Array.from(inputs).filter(input => !input.value);
+        
+        if (emptyCells.length > 0) {
+            const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            const cells = Array.from(document.querySelectorAll('.cell-input'));
+            const cellIndex = cells.indexOf(randomCell);
+            const size = Math.sqrt(cells.length);
+            const row = Math.floor(cellIndex / size);
+            const col = cellIndex % size;
+            const correctAnswer = answerMap[`${row},${col}`];
+            
+            if (correctAnswer) {
+                randomCell.value = correctAnswer;
+                randomCell.style.color = '#10B981';
+                hintsRemaining--;
+                const hintsRemainingEl = document.getElementById('hintsRemaining');
+                if (hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining;
+                saveGameState();
+                updateProgress();
+            }
+        }
+    } else {
         alert(currentLanguage === 'ja' ? 'ヒントがありません' : 'No hints remaining');
-        return;
     }
-    
-    hintsRemaining--;
-    document.getElementById('hintsRemaining').textContent = hintsRemaining;
-    
-    // Show a random hint (simplified)
-    const hints = [
-        currentLanguage === 'ja' ? '最初の文字を確認してみてください' : 'Check the first letter',
-        currentLanguage === 'ja' ? '短い言葉から始めてみてください' : 'Try starting with short words',
-        currentLanguage === 'ja' ? '交差する文字を手がかりにしてください' : 'Use intersecting letters as clues'
-    ];
-    
-    const randomHint = hints[Math.floor(Math.random() * hints.length)];
-    alert(randomHint);
-    
-    console.log(`ヒント使用: ${3 - hintsRemaining}/3`);
 }
 
 // Check answers
 function checkAnswers() {
-    console.log('答え合わせ開始');
-    let correctCount = 0;
-    let totalAnswers = 0;
+    const inputs = document.querySelectorAll('.cell-input');
+    let allCorrect = true;
     
-    // Simple validation (in real app, would check against puzzle data)
-    const cells = document.querySelectorAll('.crossword-cell:not(.blocked)');
-    cells.forEach(cell => {
-        if (cell.value.trim() !== '') {
-            totalAnswers++;
-            // Simulate correctness check
-            if (Math.random() > 0.3) { // 70% correct rate for demo
-                correctCount++;
-                cell.classList.add('pulse-success');
-                setTimeout(() => cell.classList.remove('pulse-success'), 600);
-            }
+    inputs.forEach(input => {
+        const cells = Array.from(document.querySelectorAll('.cell-input'));
+        const cellIndex = cells.indexOf(input);
+        const size = Math.sqrt(cells.length);
+        const row = Math.floor(cellIndex / size);
+        const col = cellIndex % size;
+        const correct = answerMap[`${row},${col}`];
+        
+        if (input.value === correct) {
+            input.style.color = '#10B981';
+        } else {
+            input.style.color = '#EF4444';
+            allCorrect = false;
         }
     });
     
-    if (correctCount === totalAnswers && totalAnswers > 20) {
-        setTimeout(() => showSuccessModal(), 1000);
+    if (allCorrect) {
+        showSuccessModal();
     }
-    
-    console.log(`答え合わせ結果: ${correctCount}/${totalAnswers}`);
 }
 
 // Reset game
 function resetGame() {
-    if (confirm(currentLanguage === 'ja' ? 'ゲームをリセットしますか？' : 'Reset game?')) {
-        document.querySelectorAll('.crossword-cell:not(.blocked)').forEach(cell => {
-            cell.value = '';
-            cell.classList.remove('highlighted', 'active', 'pulse-success');
-        });
-        
-        gameStartTime = Date.now();
-        hintsRemaining = 3;
-        document.getElementById('hintsRemaining').textContent = hintsRemaining;
-        updateProgress();
-        saveGameState();
-        
-        console.log('ゲームリセット');
-    }
+    document.querySelectorAll('.cell-input').forEach(input => {
+        input.value = '';
+        input.style.color = 'inherit';
+    });
+    saveGameState();
+    updateProgress();
 }
 
 // Share results
 function shareResults() {
-    const elapsed = gameStartTime ? Math.floor((Date.now() - gameStartTime) / 1000) : 0;
-    const minutes = Math.floor(elapsed / 60);
-    const seconds = elapsed % 60;
-    const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    const hintsUsed = 3 - hintsRemaining;
-    
+    const progressText = document.getElementById('progressText');
+    const time = document.getElementById('timer');
+    const progress = progressText ? progressText.textContent : '0%';
+    const timeText = time ? time.textContent : '00:00';
     const shareText = currentLanguage === 'ja' 
-        ? `CrosPuzzで今日のクロスワードパズルに挑戦！\n時間: ${timeString}\nヒント使用: ${hintsUsed}回\n\n#CrosPuzz #クロスワード #脳トレ\nhttps://appadaycreator.github.io/crospuzz-daily/`
-        : `Just played CrosPuzz daily crossword!\nTime: ${timeString}\nHints used: ${hintsUsed}\n\n#CrosPuzz #Crossword #BrainTraining\nhttps://appadaycreator.github.io/crospuzz-daily/`;
+        ? `CrosPuzz 完了！進捗: ${progress}, 時間: ${timeText}`
+        : `CrosPuzz completed! Progress: ${progress}, Time: ${timeText}`;
     
     if (navigator.share) {
         navigator.share({
@@ -657,32 +783,21 @@ function shareResults() {
             text: shareText
         });
     } else {
-        navigator.clipboard.writeText(shareText).then(() => {
-            alert(currentLanguage === 'ja' ? 'クリップボードにコピーしました' : 'Copied to clipboard');
-        });
+        navigator.clipboard.writeText(shareText);
+        alert(currentLanguage === 'ja' ? '結果をクリップボードにコピーしました' : 'Results copied to clipboard');
     }
-    
-    console.log('結果シェア');
 }
 
 // Show success modal
 function showSuccessModal() {
-    const elapsed = gameStartTime ? Math.floor((Date.now() - gameStartTime) / 1000) : 0;
-    const minutes = Math.floor(elapsed / 60);
-    const seconds = elapsed % 60;
-    const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    const modal = document.getElementById('successModal');
+    const finalTime = document.getElementById('timer').textContent;
     const hintsUsed = 3 - hintsRemaining;
     
-    document.getElementById('finalTime').textContent = timeString;
+    document.getElementById('finalTime').textContent = finalTime;
     document.getElementById('hintsUsed').textContent = hintsUsed;
-    document.getElementById('successModal').classList.remove('hidden');
     
-    // Stop timer
-    if (timerInterval) {
-        clearInterval(timerInterval);
-    }
-    
-    console.log('成功モーダル表示');
+    modal.classList.remove('hidden');
 }
 
 // Close success modal
@@ -692,72 +807,50 @@ function closeSuccessModal() {
 
 // Save game state
 function saveGameState() {
-    const state = {
-        userAnswers: {},
-        startTime: gameStartTime,
-        hintsRemaining: hintsRemaining
-    };
+    const inputs = document.querySelectorAll('.cell-input');
+    const gameState = {};
     
-    document.querySelectorAll('.crossword-cell:not(.blocked)').forEach(cell => {
-        if (cell.value.trim() !== '') {
-            state.userAnswers[cell.id] = cell.value;
+    inputs.forEach((input, index) => {
+        if (input.value) {
+            gameState[index] = input.value;
         }
     });
     
-    localStorage.setItem('crospuzz_game_state', JSON.stringify(state));
+    localStorage.setItem('crospuzz_game_state', JSON.stringify(gameState));
 }
 
 // Load game state
 function loadGameState() {
     const savedState = localStorage.getItem('crospuzz_game_state');
     if (savedState) {
-        const state = JSON.parse(savedState);
-        gameStartTime = state.startTime || Date.now();
-        hintsRemaining = state.hintsRemaining || 3;
+        const gameState = JSON.parse(savedState);
+        const inputs = document.querySelectorAll('.cell-input');
         
-        Object.entries(state.userAnswers || {}).forEach(([cellId, value]) => {
-            const cell = document.getElementById(cellId);
-            if (cell) {
-                cell.value = value;
+        Object.entries(gameState).forEach(([index, value]) => {
+            if (inputs[index]) {
+                inputs[index].value = value;
             }
         });
-        
-        document.getElementById('hintsRemaining').textContent = hintsRemaining;
-        console.log('ゲーム状態復元');
     }
 }
 
 // Toggle mobile menu
 function toggleMobileMenu() {
-    const menu = document.getElementById('mobileMenu');
-    const sidebar = document.getElementById('mobileSidebar');
-    
-    if (menu.classList.contains('hidden')) {
-        menu.classList.remove('hidden');
-        setTimeout(() => {
-            sidebar.classList.remove('translate-x-full');
-        }, 10);
-    } else {
-        sidebar.classList.add('translate-x-full');
-        setTimeout(() => {
-            menu.classList.add('hidden');
-        }, 300);
-    }
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('translate-x-0');
+    sidebar.classList.toggle('-translate-x-full');
 }
 
 // Toggle language
 function toggleLanguage() {
     currentLanguage = currentLanguage === 'ja' ? 'en' : 'ja';
-    document.documentElement.lang = currentLanguage;
     updateTranslations();
     saveSettings();
-    console.log(`言語切替: ${currentLanguage}`);
 }
 
 // Update translations
 function updateTranslations() {
-    const elements = document.querySelectorAll('[data-i18n]');
-    elements.forEach(element => {
+    document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
         if (translations[currentLanguage] && translations[currentLanguage][key]) {
             element.textContent = translations[currentLanguage][key];
@@ -768,13 +861,8 @@ function updateTranslations() {
 // Toggle dark mode
 function toggleDarkMode() {
     isDarkMode = !isDarkMode;
-    if (isDarkMode) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.toggle('dark', isDarkMode);
     saveSettings();
-    console.log(`ダークモード: ${isDarkMode ? 'ON' : 'OFF'}`);
 }
 
 // Toggle font size menu
@@ -789,34 +877,12 @@ function setFontSize(size) {
     document.body.classList.add(`font-size-${size}`);
     currentFontSize = size;
     saveSettings();
-    
-    // Hide menu
-    document.getElementById('fontSizeMenu').classList.add('hidden');
-    
-    console.log(`フォントサイズ変更: ${size}`);
 }
 
-// Close dropdowns when clicking outside
-document.addEventListener('click', function(event) {
-    if (!event.target.closest('#fontSizeMenu') && !event.target.closest('[onclick*="toggleFontSizeMenu"]')) {
-        document.getElementById('fontSizeMenu').classList.add('hidden');
-    }
-});
-
-// PWA install prompt
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    console.log('PWAインストール可能');
-});
-
-// Console logging for debugging
-console.log('🧩 CrosPuzz - Daily Crossword Puzzle');
-console.log('📱 PWA Ready');
-console.log('🌐 Multi-language Support');
-console.log('🎨 Responsive Design');
-console.log('♿ Accessibility Features');
-console.log('📊 Progress Tracking');
-console.log('💾 Local Storage');
-console.log('🔄 Service Worker Ready'); 
+// パズル選択機能
+function selectPuzzle(index) {
+    currentPuzzleIndex = index;
+    renderPuzzle(index);
+    // パズルタイトルを更新
+    document.querySelector('[data-i18n="daily_puzzle"]').textContent = puzzles[index].title;
+} 
