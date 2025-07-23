@@ -5,22 +5,22 @@
   "difficulty": "beginner",
   "size": "7x7",
   "grid": [
-    [1, 2, 3, 0, 4, 5, 6],
-    [0, 0, 0, 0, 0, 0, 0],
-    [7, 0, 8, 0, 9, 0, 10],
-    [0, 0, 0, 0, 0, 0, 0],
-    [11, 0, 12, 0, 13, 0, 14],
-    [0, 0, 0, 0, 0, 0, 0],
-    [15, 0, 16, 0, 17, 0, 18]
+    ["さ", "く", "ら", "#", "う", "め", "も"],
+    ["も", "い", "ち", "#", "す", "み", "れ"],
+    ["#", "あ", "じ", "#", "き", "く", "#"],
+    ["#", "#", "#", "#", "#", "#", "#"],
+    ["す", "い", "か", "#", "い", "ち", "ご"],
+    ["な", "し", "ぶ", "#", "ど", "う", "#"],
+    ["た", "け", "ま", "#", "つ", "か", "え"]
   ],
   "blocked": [
     [false, false, false, true, false, false, false],
+    [false, false, false, true, false, false, false],
+    [false, false, false, true, false, false, false],
     [true, true, true, true, true, true, true],
-    [false, true, false, true, false, true, false],
-    [true, true, true, true, true, true, true],
-    [false, true, false, true, false, true, false],
-    [true, true, true, true, true, true, true],
-    [false, true, false, true, false, true, false]
+    [false, false, false, true, false, false, false],
+    [false, false, false, true, false, false, false],
+    [false, false, false, true, false, false, false]
   ],
   "answers": {
     "1": "さくら",

@@ -64,6 +64,22 @@
     font-size: 1.1rem;
     background: transparent;
     font-weight: 500;
+    font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+    color: #1F2937;
+}
+
+.cell-input:focus {
+    background-color: #EEF2FF;
+    color: #1F2937;
+}
+
+.dark .cell-input {
+    color: #F9FAFB;
+}
+
+.dark .cell-input:focus {
+    background-color: #4338CA;
+    color: #F9FAFB;
 }
 
 .cell-number {
