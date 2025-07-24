@@ -9,9 +9,13 @@ package-lock.json
 # Test files
 test_*.html
 test_*.js
+test_*.py
 debug_*.js
 simple_test.js
 capture_screen.sh
+balance_test.html
+manual_test.html
+debug.html
 
 # Temporary files
 *.tmp
@@ -45,3 +49,6 @@ build/
 
 # Cache
 .cache/
+
+# Server logs
+server.log

@@ -1,5 +1,5 @@
 // CrosPuzz - Daily Crossword Puzzle Application
-// Version: 1.0.7
+// Version: 1.0.8
 // Author: AppAdayCreator
 
 // グローバル変数
@@ -1060,6 +1060,9 @@ function selectDifficulty(difficulty) {
     saveSettings();
 }
 
+// グローバルスコープに登録
+window.selectDifficulty = selectDifficulty;
+
 // 難易度ボタンの状態を更新
 function updateDifficultyButtons(selectedDifficulty) {
     const buttons = {
@@ -1128,6 +1131,18 @@ function updatePuzzleSelect(difficulty) {
 
 // パズル選択の初期化（新しい実装）
 function initializePuzzleSelect() {
+    // パズル選択のイベントリスナーを設定
+    const puzzleSelect = document.getElementById('puzzleSelect');
+    if (puzzleSelect) {
+        puzzleSelect.addEventListener('change', function() {
+            const selectedIndex = parseInt(this.value);
+            if (!isNaN(selectedIndex)) {
+                console.log(`パズル選択変更: index=${selectedIndex}`);
+                selectPuzzle(currentSelectedDifficulty, selectedIndex);
+            }
+        });
+    }
+    
     // 保存された難易度または初期難易度を設定
     selectDifficulty(currentSelectedDifficulty);
 }
@@ -1990,4 +2005,17 @@ function updateDifficultyBadge(difficulty) {
         badge.className = `inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${difficultyInfo.bg}`;
         badge.innerHTML = `<i class="${difficultyInfo.icon} mr-1"></i><span data-i18n="${difficulty}">${difficultyInfo.text}</span>`;
     }
-} 
+}
+
+// グローバルスコープに関数を登録（HTML onclickから呼び出すため）
+window.checkAnswers = checkAnswers;
+window.showHint = showHint;
+window.resetGame = resetGame;
+window.initializeGame = initializeGame;
+window.toggleLanguage = toggleLanguage;
+window.toggleDarkMode = toggleDarkMode;
+window.setFontSize = setFontSize;
+window.toggleFontSizeMenu = toggleFontSizeMenu;
+window.toggleMobileMenu = toggleMobileMenu;
+window.shareResults = shareResults;
+window.closeSuccessModal = closeSuccessModal; 

@@ -163,6 +163,28 @@
                     </div>
                 </div>
 
+                <div class="bg-orange-50 border-l-4 border-orange-400 p-6 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-bug text-orange-400 text-xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-orange-800">
+                                グローバルスコープ問題を修正
+                            </h3>
+                            <div class="mt-2 text-sm text-orange-700">
+                                <p>onclick属性から呼び出される関数がグローバルスコープで利用できない問題を解決しました。</p>
+                                <ul class="list-disc list-inside mt-2 space-y-1">
+                                    <li><strong>🌐 グローバル登録</strong>: すべてのonclick関数をwindowオブジェクトに登録</li>
+                                    <li><strong>🔧 イベントリスナー追加</strong>: パズル選択のchangeイベントを適切に設定</li>
+                                    <li><strong>✅ エラー解消</strong>: 難易度ボタンクリック時のエラーを完全に解決</li>
+                                    <li><strong>📋 横展開対応</strong>: すべてのHTML内onclick関数を網羅的に対応</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-green-50 border-l-4 border-green-400 p-6 mb-6">
                     <div class="flex">
                         <div class="flex-shrink-0">
