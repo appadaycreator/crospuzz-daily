@@ -198,15 +198,37 @@ function generatePuzzle(puzzle) {
   // 2語目を確実に縦配置（1語目と交差するように）
   if (optimizedWords.length > 1) {
     const second = optimizedWords[1].answer;
-    // 1語目の中央付近で交差する位置を探す
-    const firstMid = Math.floor(first.length / 2);
-    const secondMid = Math.floor(second.length / 2);
-    const secondRow = midRow - secondMid;
-    const secondCol = startCol + firstMid;
     
-    console.log(`2語目配置: "${second}" at (${secondRow},${secondCol}) down`);
-    placeWord(grid, second, secondRow, secondCol, "down");
-    placed.push({ ...optimizedWords[1], row: secondRow, col: secondCol, dir: "down" });
+    // 1語目と2語目で共通する文字を探す
+    let foundIntersection = false;
+    for (let i = 0; i < first.length; i++) {
+      for (let j = 0; j < second.length; j++) {
+        if (first[i] === second[j]) {
+          // 交差位置を計算
+          const secondRow = midRow - j;
+          const secondCol = startCol + i;
+          
+          // 境界チェック
+          if (secondRow >= 0 && secondRow + second.length <= size) {
+            console.log(`2語目配置: "${second}" の "${second[j]}" と "${first}" の "${first[i]}" で交差 at (${secondRow},${secondCol}) down`);
+            placeWord(grid, second, secondRow, secondCol, "down");
+            placed.push({ ...optimizedWords[1], row: secondRow, col: secondCol, dir: "down" });
+            foundIntersection = true;
+            break;
+          }
+        }
+      }
+      if (foundIntersection) break;
+    }
+    
+    // 交差が見つからない場合は、独立して配置
+    if (!foundIntersection) {
+      const secondRow = Math.floor((size - second.length) / 2);
+      const secondCol = Math.floor(size / 2);
+      console.log(`2語目独立配置: "${second}" at (${secondRow},${secondCol}) down`);
+      placeWord(grid, second, secondRow, secondCol, "down");
+      placed.push({ ...optimizedWords[1], row: secondRow, col: secondCol, dir: "down" });
+    }
   }
   
   // 残りの単語を交差のみで配置
@@ -358,6 +380,12 @@ function generatePuzzle(puzzle) {
   grid.forEach((row, i) => {
     console.log(`  ${i}: ${row.join(' ')}`);
   });
+
+  // 縦の単語が0個の場合は警告
+  if (downCount === 0) {
+    console.warn('⚠️ 縦の単語が配置されていません！');
+    console.warn('配置された単語:', placed.map(p => `"${p.answer}" (${p.dir})`));
+  }
 
   return {
     grid,
@@ -573,6 +601,12 @@ function optimizeWordOrder(words) {
   if (bestSecondWord) {
     optimized.push(bestSecondWord);
     remaining.splice(remaining.indexOf(bestSecondWord), 1);
+  } else {
+    // 交差が見つからない場合は、2番目に長い単語を選択
+    if (remaining.length > 0) {
+      optimized.push(remaining[0]);
+      remaining.splice(0, 1);
+    }
   }
 
   // 残りの単語を交差可能性でソート
