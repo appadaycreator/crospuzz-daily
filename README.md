@@ -234,6 +234,18 @@ npm run build
 - `feature/*`: 機能開発
 - `hotfix/*`: 緊急修正
 
+## ⚠️ 既知の問題と対処法
+
+### Web版で上級問題が選択できない場合
+Service Workerのキャッシュにより古いデータが表示される場合があります。
+
+**対処法：**
+1. **Chrome/Edge**: F12 → Application → Storage → Clear site data
+2. **Firefox**: F12 → Storage → Clear All  
+3. **Safari**: 開発メニュー → Webサイトデータを消去
+4. ブラウザを完全に再起動
+5. Ctrl+F5（Mac: Cmd+Shift+R）でハード再読み込み
+
 ## 🔄 更新履歴
 
 ### v1.0.5 (2024/07/24) - 難易度別選択機能実装

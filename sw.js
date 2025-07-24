@@ -1,12 +1,13 @@
 // CrosPuzz Service Worker
-// Version: 1.0.0
+// Version: 1.0.6
 
-const CACHE_NAME = 'crospuzz-v1.0.0';
+const CACHE_NAME = 'crospuzz-v1.0.6';
 const urlsToCache = [
     '/',
     '/index.html',
     '/assets/css/styles.css',
     '/assets/js/app.js',
+    '/static/puzzles/puzzles.json',
     'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
     'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css',
     'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Inter:wght@300;400;500;700&display=swap'
@@ -26,6 +27,28 @@ self.addEventListener('install', event => {
 
 // Fetch event
 self.addEventListener('fetch', event => {
+    // puzzles.jsonは常に最新版を取得
+    if (event.request.url.includes('puzzles.json')) {
+        event.respondWith(
+            fetch(event.request)
+                .then(response => {
+                    // レスポンスをクローンしてキャッシュに保存
+                    const responseToCache = response.clone();
+                    caches.open(CACHE_NAME)
+                        .then(cache => {
+                            cache.put(event.request, responseToCache);
+                        });
+                    return response;
+                })
+                .catch(() => {
+                    // オフライン時はキャッシュから取得
+                    return caches.match(event.request);
+                })
+        );
+        return;
+    }
+    
+    // その他のリソースは通常のキャッシュ戦略
     event.respondWith(
         caches.match(event.request)
             .then(response => {

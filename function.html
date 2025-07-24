@@ -41,6 +41,31 @@
                 機能説明とアップデート情報
             </h1>
 
+            <!-- 緊急メンテナンス情報 -->
+            <div class="bg-red-50 border-l-4 border-red-400 p-6 mb-8">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-lg font-medium text-red-800">
+                            Web版で上級問題が表示されない場合の対処法
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <p class="mb-2">Service Workerのキャッシュが原因で古いデータが表示されている可能性があります。以下の手順でキャッシュをクリアしてください：</p>
+                            <ol class="list-decimal list-inside space-y-1">
+                                <li><strong>Chrome/Edge</strong>: F12 → Application → Storage → Clear site data</li>
+                                <li><strong>Firefox</strong>: F12 → Storage → Clear All</li>
+                                <li><strong>Safari</strong>: 開発メニュー → Webサイトデータを消去</li>
+                                <li>ブラウザを完全に再起動</li>
+                                <li>Ctrl+F5（Mac: Cmd+Shift+R）でハード再読み込み</li>
+                            </ol>
+                            <p class="mt-2 text-xs">※ローカル環境では正常に動作することを確認済みです</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- 最新のアップデート -->
             <section class="mb-12">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b-2 border-indigo-600 pb-2">
