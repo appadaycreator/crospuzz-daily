@@ -167,20 +167,17 @@ function generatePuzzle(puzzle) {
   // リトライカウントをリセット
   generateRetryCount = 0;
   
-  // 単語数を制限（最大15個まで）
-  let wordsToUse = puzzle.words.slice(0, 15);
+  // 単語数を制限（最大8個まで）
+  let wordsToUse = puzzle.words.slice(0, 8);
   console.log(`使用する単語数: ${wordsToUse.length}個（元の単語数: ${puzzle.words.length}個）`);
   
   const longest = Math.max(...wordsToUse.map(w => w.answer.length));
-  let size = Math.max(10, longest + 3); // グリッドサイズを適切に調整
+  let size = Math.max(9, longest + 2); // グリッドサイズを小さく調整
   
   // 単語数に応じてグリッドサイズを調整
   const wordCount = wordsToUse.length;
-  if (wordCount > 8) {
-    size = Math.max(size, 12);
-  }
-  if (wordCount > 12) {
-    size = Math.max(size, 15);
+  if (wordCount > 5) {
+    size = Math.max(size, 11);
   }
   
   console.log(`グリッドサイズ: ${size}x${size}, 単語数: ${wordCount}`);
@@ -241,8 +238,16 @@ function generatePuzzle(puzzle) {
     }
   }
   
-  // 残りの単語を交差のみで配置
+  // 残りの単語を交差のみで配置（最大試行時間を設定）
+  const maxTime = Date.now() + 5000; // 5秒でタイムアウト
+  
   for (let wi = 2; wi < optimizedWords.length; wi++) {
+    // タイムアウトチェック
+    if (Date.now() > maxTime) {
+      console.log('⏰ パズル生成タイムアウト - 配置済み単語で完了');
+      break;
+    }
+    
     const w = optimizedWords[wi].answer;
     console.log(`\n=== 単語 "${w}" の交差配置を試行中... ===`);
     console.log(`現在配置済み: ${placed.length}個`);
@@ -299,18 +304,10 @@ function generatePuzzle(puzzle) {
 
     // 交差できなかった場合は失敗
     if (!placedWord) {
-      console.log(`交差配置失敗: "${w}" - 独立配置は許可しません`);
-      // 失敗した場合は最初からやり直し（最大3回まで）
-      if (generateRetryCount < 3) {
-        generateRetryCount++;
-        console.log(`再試行 ${generateRetryCount}/3`);
-        return generatePuzzle(puzzle);
-      } else {
-        console.log('最大再試行回数に達しました');
-        // 最後の手段として、配置できた単語のみで続行
-        console.log(`配置できた単語のみで続行: ${placed.length}個`);
-        break;
-      }
+      console.log(`交差配置失敗: "${w}" - 配置できた単語のみで続行`);
+      // 配置できた単語のみで続行（再試行しない）
+      console.log(`配置できた単語のみで続行: ${placed.length}個`);
+      break;
     }
   }
 
@@ -411,6 +408,12 @@ function generatePuzzle(puzzle) {
     console.warn('配置された単語:', placed.map(p => `"${p.answer}" (${p.dir})`));
   }
 
+  // 最小限のパズルチェック（少なくとも2単語は必要）
+  if (placed.length < 2) {
+    console.error('❌ パズル生成失敗: 配置された単語が少なすぎます');
+    return generateSimpleFallbackPuzzle(puzzle);
+  }
+
   return {
     grid,
     across,
@@ -419,6 +422,79 @@ function generatePuzzle(puzzle) {
       size,
       wordCount: placed.length
     },
+    numbering
+  };
+}
+
+// 最もシンプルなフォールバック関数
+function generateSimpleFallbackPuzzle(puzzle) {
+  console.log('🔄 シンプルフォールバック生成開始');
+  
+  const size = 7;
+  const grid = createEmptyGrid(size);
+  const placed = [];
+  
+  // 最初の3つの単語のみ使用
+  const simpleWords = puzzle.words.slice(0, 3);
+  
+  // 1. 中央に横単語を配置
+  const word1 = simpleWords[0].answer;
+  const row1 = 3;
+  const col1 = Math.floor((size - word1.length) / 2);
+  placeWord(grid, word1, row1, col1, "across");
+  placed.push({ ...simpleWords[0], row: row1, col: col1, dir: "across" });
+  
+  // 2. 縦単語を配置（可能なら交差させる）
+  if (simpleWords.length > 1) {
+    const word2 = simpleWords[1].answer;
+    const row2 = Math.floor((size - word2.length) / 2);
+    const col2 = col1 + 1; // 2文字目で交差
+    
+    if (row2 >= 0 && row2 + word2.length <= size && col2 < size) {
+      placeWord(grid, word2, row2, col2, "down");
+      placed.push({ ...simpleWords[1], row: row2, col: col2, dir: "down" });
+    }
+  }
+  
+  // 黒マスで埋める
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (grid[r][c] === "") grid[r][c] = "#";
+    }
+  }
+  
+  // 番号付けとヒント作成
+  const numbering = {};
+  const across = [];
+  const down = [];
+  let num = 1;
+  
+  for (const word of placed) {
+    numbering[`${word.row},${word.col}`] = num;
+    const clueData = {
+      number: num,
+      clue: word.clue,
+      answer: word.answer,
+      row: word.row,
+      col: word.col,
+      length: word.answer.length
+    };
+    
+    if (word.dir === "across") {
+      across.push(clueData);
+    } else {
+      down.push(clueData);
+    }
+    num++;
+  }
+  
+  console.log('✅ シンプルフォールバック完了:', { across: across.length, down: down.length });
+  
+  return {
+    grid,
+    across,
+    down,
+    constraints: { size, wordCount: placed.length },
     numbering
   };
 }
