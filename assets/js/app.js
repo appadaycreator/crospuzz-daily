@@ -56,6 +56,9 @@ async function loadPuzzleData() {
   }
 }
 
+// グローバル変数（リトライカウント）
+let generateRetryCount = 0;
+
 // 動的パズル生成ロジック
 function createEmptyGrid(size) {
   return Array.from({ length: size }, () => Array(size).fill(""));
@@ -161,23 +164,30 @@ function placeWord(grid, word, r, c, dir) {
 function generatePuzzle(puzzle) {
   console.log('generatePuzzle開始:', puzzle);
   
-  const longest = Math.max(...puzzle.words.map(w => w.answer.length));
-  let size = Math.max(15, longest + 6); // グリッドサイズを大きくする
+  // リトライカウントをリセット
+  generateRetryCount = 0;
+  
+  // 単語数を制限（最大15個まで）
+  let wordsToUse = puzzle.words.slice(0, 15);
+  console.log(`使用する単語数: ${wordsToUse.length}個（元の単語数: ${puzzle.words.length}個）`);
+  
+  const longest = Math.max(...wordsToUse.map(w => w.answer.length));
+  let size = Math.max(10, longest + 3); // グリッドサイズを適切に調整
   
   // 単語数に応じてグリッドサイズを調整
-  const wordCount = puzzle.words.length;
+  const wordCount = wordsToUse.length;
   if (wordCount > 8) {
-    size = Math.max(size, 18);
+    size = Math.max(size, 12);
   }
   if (wordCount > 12) {
-    size = Math.max(size, 21);
+    size = Math.max(size, 15);
   }
   
   console.log(`グリッドサイズ: ${size}x${size}, 単語数: ${wordCount}`);
   let grid = createEmptyGrid(size);
 
   // 単語を長さでソート（長い単語から配置）
-  const words = [...puzzle.words].sort((a, b) => b.answer.length - a.answer.length);
+  const words = [...wordsToUse].sort((a, b) => b.answer.length - a.answer.length);
   console.log('ソートされた単語（長い順）:', words);
   
   // 交差可能性の高い単語を優先
@@ -290,16 +300,16 @@ function generatePuzzle(puzzle) {
     // 交差できなかった場合は失敗
     if (!placedWord) {
       console.log(`交差配置失敗: "${w}" - 独立配置は許可しません`);
-      // 失敗した場合は最初からやり直し（最大5回まで）
-      if (retryCount < 5) {
-        retryCount++;
-        console.log(`再試行 ${retryCount}/5`);
+      // 失敗した場合は最初からやり直し（最大3回まで）
+      if (generateRetryCount < 3) {
+        generateRetryCount++;
+        console.log(`再試行 ${generateRetryCount}/3`);
         return generatePuzzle(puzzle);
       } else {
         console.log('最大再試行回数に達しました');
-        retryCount = 0;
-        // 最後の手段として独立配置を許可
-        return generatePuzzleWithFallback(puzzle);
+        // 最後の手段として、配置できた単語のみで続行
+        console.log(`配置できた単語のみで続行: ${placed.length}個`);
+        break;
       }
     }
   }
@@ -343,8 +353,18 @@ function generatePuzzle(puzzle) {
   }
 
   // ステップ③：ヨコとタテのカギを作成
+  console.log('ヨコとタテのカギを作成開始');
+  console.log('配置された単語:', placed.map(w => `${w.answer}(${w.dir})`));
+  
   for (const word of placed) {
     const number = numbering[`${word.row},${word.col}`];
+    console.log(`単語 "${word.answer}" の番号: ${number}, 方向: ${word.dir}`);
+    
+    if (!number) {
+      console.warn(`警告: 単語 "${word.answer}" at (${word.row},${word.col}) に番号が付与されていません`);
+      continue;
+    }
+    
     const clueData = {
       number,
       clue: word.clue,
@@ -356,8 +376,12 @@ function generatePuzzle(puzzle) {
 
     if (word.dir === "across") {
       across.push(clueData);
-    } else {
+      console.log(`ヨコのカギに追加: ${number}. ${word.clue}`);
+    } else if (word.dir === "down") {
       down.push(clueData);
+      console.log(`タテのカギに追加: ${number}. ${word.clue}`);
+    } else {
+      console.error(`不明な方向: ${word.dir}`);
     }
   }
 
