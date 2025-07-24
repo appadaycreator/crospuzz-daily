@@ -4,7 +4,7 @@
     --font-size-base: 1rem;
     --font-size-lg: 1.125rem;
     --font-size-xl: 1.25rem;
-    --grid-cell-size: 40px;
+    --grid-cell-size: 35px;
 }
 
 .font-size-xs { font-size: var(--font-size-xs) !important; }
@@ -115,6 +115,23 @@
 @media (max-width: 768px) {
     :root {
         --grid-cell-size: 28px;
+    }
+}
+
+/* PCでのレイアウト最適化 */
+@media (min-width: 1024px) {
+    .crossword-grid {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .clue-item {
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+    
+    .clue-item .clue-number {
+        font-size: 0.75rem;
     }
 }
 

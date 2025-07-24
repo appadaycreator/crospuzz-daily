@@ -2,113 +2,138 @@
 // Version: 1.0.0
 // Author: AppAdayCreator
 
-// パズルデータ
-const puzzles = [
-  {
-    title: "日本のシンボル",
-    words: [
-      { answer: "さくら", clue: "春に咲く花" },
-      { answer: "ふじさん", clue: "日本一高い山" },
-      { answer: "すし", clue: "酢飯とネタ" },
-      { answer: "まつり", clue: "伝統的なイベント" },
-      { answer: "きもの", clue: "和装" },
-      { answer: "あめ", clue: "空から降る" },
-      { answer: "ゆき", clue: "冬の白い結晶" }
-    ]
-  },
-  {
-    title: "日本の食べ物",
-    words: [
-      { answer: "らーめん", clue: "人気の麺料理" },
-      { answer: "すし", clue: "酢飯とネタ" },
-      { answer: "てんぷら", clue: "揚げ衣がサクサク" },
-      { answer: "おにぎり", clue: "三角や丸で握る" },
-      { answer: "うどん", clue: "太めの小麦麺" }
-    ]
-  },
-  {
-    title: "動物",
-    words: [
-      { answer: "ねこ", clue: "気まぐれなペット" },
-      { answer: "いぬ", clue: "忠実なペット" },
-      { answer: "きつね", clue: "狐" },
-      { answer: "たぬき", clue: "ぽんぽこ" },
-      { answer: "うさぎ", clue: "耳が長い" }
-    ]
-  },
-  {
-    title: "スポーツ",
-    words: [
-      { answer: "やきゅう", clue: "9人で戦う球技" },
-      { answer: "さっかー", clue: "11人で戦う球技" },
-      { answer: "すもう", clue: "土俵での格闘技" },
-      { answer: "てにす", clue: "ラケットを使う" },
-      { answer: "ごるふ", clue: "18ホールを回る" }
-    ]
-  },
-  {
-    title: "乗り物",
-    words: [
-      { answer: "しんかんせん", clue: "日本の高速鉄道" },
-      { answer: "じてんしゃ", clue: "ペダルをこぐ" },
-      { answer: "くるま", clue: "四輪" },
-      { answer: "ひこうき", clue: "空を飛ぶ" },
-      { answer: "ふね", clue: "海を進む" }
-    ]
-  },
-  {
-    title: "季節",
-    words: [
-      { answer: "はる", clue: "桜の季節" },
-      { answer: "なつ", clue: "海水浴" },
-      { answer: "あき", clue: "紅葉" },
-      { answer: "ふゆ", clue: "雪" },
-      { answer: "つゆ", clue: "梅雨" }
-    ]
-  },
-  {
-    title: "都道府県",
-    words: [
-      { answer: "とうきょう", clue: "日本の首都" },
-      { answer: "おおさか", clue: "関西の大都市" },
-      { answer: "ほっかいどう", clue: "日本最北の道" },
-      { answer: "ふくおか", clue: "博多ラーメン" },
-      { answer: "ひろしま", clue: "平和記念公園" }
-    ]
-  },
-  {
-    title: "色",
-    words: [
-      { answer: "あか", clue: "情熱の色" },
-      { answer: "あお", clue: "空や海の色" },
-      { answer: "きいろ", clue: "ひまわりの色" },
-      { answer: "みどり", clue: "草木の色" },
-      { answer: "しろ", clue: "雪の色" },
-      { answer: "くろ", clue: "夜の色" },
-      { answer: "ちゃいろ", clue: "木の色" }
-    ]
-  },
-  {
-    title: "家電",
-    words: [
-      { answer: "でんしれんじ", clue: "チン！" },
-      { answer: "そうじき", clue: "吸い取る" },
-      { answer: "せんたくき", clue: "衣類を洗う" },
-      { answer: "でんき", clue: "明かり" },
-      { answer: "てれび", clue: "映像を見る" }
-    ]
-  },
-  {
-    title: "IT 用語",
-    words: [
-      { answer: "くらうど", clue: "雲のサービス" },
-      { answer: "さーばー", clue: "サービスを提供" },
-      { answer: "ふぁいあうぉーる", clue: "防火壁" },
-      { answer: "でーたべーす", clue: "DB" },
-      { answer: "ぷろぐらむ", clue: "コード" }
-    ]
-  }
-];
+// パズルデータ（難易度別）
+console.log('パズルデータ読み込み開始');
+const puzzles = {
+                    beginner: [
+                    {
+                      title: "動物の名前",
+                      words: [
+                        { answer: "ねこ", clue: "気まぐれなペット" },
+                        { answer: "いぬ", clue: "忠実なペット" },
+                        { answer: "うさぎ", clue: "耳が長い動物" },
+                        { answer: "とり", clue: "空を飛ぶ動物" },
+                        { answer: "さかな", clue: "海に住む動物" },
+                        { answer: "くま", clue: "冬眠する動物" },
+                        { answer: "きつね", clue: "きつね" },
+                        { answer: "たぬき", clue: "たぬき" }
+                      ]
+                    },
+                        {
+                      title: "果物の名前",
+                      words: [
+                        { answer: "りんご", clue: "赤い果物" },
+                        { answer: "みかん", clue: "冬の果物" },
+                        { answer: "ばなな", clue: "黄色い果物" },
+                        { answer: "ぶどう", clue: "紫色の果物" },
+                        { answer: "もも", clue: "桃色の果物" },
+                        { answer: "なし", clue: "梨" },
+                        { answer: "かき", clue: "柿" },
+                        { answer: "いちご", clue: "苺" }
+                      ]
+                    },
+                        {
+                      title: "乗り物の名前",
+                      words: [
+                        { answer: "くるま", clue: "四輪の乗り物" },
+                        { answer: "でんしゃ", clue: "電車" },
+                        { answer: "ひこうき", clue: "空を飛ぶ乗り物" },
+                        { answer: "ふね", clue: "海を走る乗り物" },
+                        { answer: "じてんしゃ", clue: "自転車" },
+                        { answer: "ばす", clue: "バス" },
+                        { answer: "たっくしー", clue: "タクシー" },
+                        { answer: "せんしゃ", clue: "戦車" }
+                      ]
+                    }
+  ],
+  intermediate: [
+    {
+      title: "日本の食べ物",
+      words: [
+        { answer: "らーめん", clue: "人気の麺料理" },
+        { answer: "すし", clue: "酢飯とネタ" },
+        { answer: "てんぷら", clue: "揚げ衣がサクサク" },
+        { answer: "おにぎり", clue: "三角や丸で握る" },
+        { answer: "うどん", clue: "太めの小麦麺" },
+        { answer: "たまごやき", clue: "卵を焼いた料理" },
+        { answer: "ぎょうざ", clue: "皮で包む中華料理" },
+        { answer: "からあげ", clue: "唐揚げ" },
+        { answer: "みそしる", clue: "日本の味噌汁" }
+      ]
+    },
+    {
+      title: "スポーツ競技",
+      words: [
+        { answer: "やきゅう", clue: "9人で戦う球技" },
+        { answer: "さっかー", clue: "11人で戦う球技" },
+        { answer: "すもう", clue: "土俵での格闘技" },
+        { answer: "てにす", clue: "ラケットを使う" },
+        { answer: "ごるふ", clue: "18ホールを回る" },
+        { answer: "ばすけっとぼーる", clue: "バスケットボール" },
+        { answer: "ばれーぼーる", clue: "バレーボール" },
+        { answer: "すいえい", clue: "プールで泳ぐ" }
+      ]
+    },
+    {
+      title: "日本の都道府県",
+      words: [
+        { answer: "とうきょう", clue: "日本の首都" },
+        { answer: "おおさか", clue: "関西の大都市" },
+        { answer: "ほっかいどう", clue: "日本最北の道" },
+        { answer: "ふくおか", clue: "博多ラーメン" },
+        { answer: "ひろしま", clue: "平和記念公園" },
+        { answer: "きょうと", clue: "古都" },
+        { answer: "よこはま", clue: "神奈川県の市" },
+        { answer: "なごや", clue: "愛知県の県庁所在地" }
+      ]
+    }
+  ],
+  advanced: [
+    {
+      title: "交通・乗り物",
+      words: [
+        { answer: "しんかんせん", clue: "日本の高速鉄道" },
+        { answer: "ちゅうしょうき", clue: "中型旅客機" },
+        { answer: "じょうききかん", clue: "蒸気機関車" },
+        { answer: "でんしゃ", clue: "電車" },
+        { answer: "ばす", clue: "バス" },
+        { answer: "たっくしー", clue: "タクシー" },
+        { answer: "ふね", clue: "船" },
+        { answer: "ひこうき", clue: "飛行機" },
+        { answer: "りょこう", clue: "旅行" }
+      ]
+    },
+    {
+      title: "IT・コンピュータ",
+      words: [
+        { answer: "くらうど", clue: "クラウドコンピューティング" },
+        { answer: "さーばー", clue: "サーバー" },
+        { answer: "ふぁいあうぉーる", clue: "ファイアウォール" },
+        { answer: "でーたべーす", clue: "データベース" },
+        { answer: "ぷろぐらむ", clue: "プログラム" },
+        { answer: "あぷりけーしょん", clue: "アプリケーション" },
+        { answer: "いんたーねっと", clue: "インターネット" },
+        { answer: "でばいす", clue: "デバイス" },
+        { answer: "ねっとわーく", clue: "ネットワーク" }
+      ]
+    },
+    {
+      title: "家電・電子機器",
+      words: [
+        { answer: "でんしれんじ", clue: "電子レンジ" },
+        { answer: "そうじき", clue: "掃除機" },
+        { answer: "せんたくき", clue: "洗濯機" },
+        { answer: "れいぞうこ", clue: "冷蔵庫" },
+        { answer: "くーらー", clue: "クーラー" },
+        { answer: "せんぷうき", clue: "扇風機" },
+        { answer: "でんたく", clue: "電卓" },
+        { answer: "てれび", clue: "テレビ" },
+        { answer: "でんき", clue: "電気" }
+      ]
+    }
+  ]
+};
+console.log('パズルデータ読み込み完了:', Object.keys(puzzles).map(d => `${d}: ${puzzles[d].length}個`));
 
 // 動的パズル生成ロジック
 function createEmptyGrid(size) {
@@ -117,50 +142,98 @@ function createEmptyGrid(size) {
 
 function canPlace(grid, word, r, c, dir) {
   const size = grid.length;
-  
+
   if (dir === "across") {
-    if (c + word.length > size) return false;
-    
-    // 日本語クロスワード基本ルール: 単語の前後に文字がないかチェック
-    if (c > 0 && grid[r][c - 1] !== "" && grid[r][c - 1] !== "#") return false;
-    if (c + word.length < size && grid[r][c + word.length] !== "" && grid[r][c + word.length] !== "#") return false;
-    
+    if (c + word.length > size) {
+      console.log(`  ❌ 境界外: c=${c}, word.length=${word.length}, size=${size}`);
+      return false;
+    }
+
+    // クロスワードルール: 単語の前後に文字がないかチェック
+    if (c > 0 && grid[r][c - 1] !== "" && grid[r][c - 1] !== "#") {
+      console.log(`  ❌ 前の文字が存在: grid[${r}][${c-1}] = "${grid[r][c - 1]}"`);
+      return false;
+    }
+    if (c + word.length < size && grid[r][c + word.length] !== "" && grid[r][c + word.length] !== "#") {
+      console.log(`  ❌ 後の文字が存在: grid[${r}][${c + word.length}] = "${grid[r][c + word.length]}"`);
+      return false;
+    }
+
     for (let i = 0; i < word.length; i++) {
       const cell = grid[r][c + i];
-      if (cell && cell !== word[i]) return false;
-      if (cell === "#") return false;
-      
-      // 交差点ではヨコ・タテ双方の文字が一致していなければならない
+      if (cell && cell !== word[i]) {
+        console.log(`  ❌ 文字不一致: grid[${r}][${c+i}] = "${cell}", word[${i}] = "${word[i]}"`);
+        return false;
+      }
+      if (cell === "#") {
+        console.log(`  ❌ 黒マス: grid[${r}][${c+i}] = "#"`);
+        return false;
+      }
+
+      // 交差点のチェック
       if (r > 0 && grid[r - 1][c + i] !== "" && grid[r - 1][c + i] !== "#") {
-        if (i === 0 || i === word.length - 1) return false; // 端の文字は交差できない
+        // 交差は許可するが、文字が一致する必要がある
+        if (grid[r - 1][c + i] !== word[i]) {
+          console.log(`  ❌ 上側交差文字不一致: grid[${r-1}][${c+i}] = "${grid[r - 1][c + i]}", word[${i}] = "${word[i]}"`);
+          return false;
+        }
       }
       if (r < size - 1 && grid[r + 1][c + i] !== "" && grid[r + 1][c + i] !== "#") {
-        if (i === 0 || i === word.length - 1) return false; // 端の文字は交差できない
+        // 交差は許可するが、文字が一致する必要がある
+        if (grid[r + 1][c + i] !== word[i]) {
+          console.log(`  ❌ 下側交差文字不一致: grid[${r+1}][${c+i}] = "${grid[r + 1][c + i]}", word[${i}] = "${word[i]}"`);
+          return false;
+        }
       }
     }
+    console.log(`  ✅ across配置可能: "${word}" at (${r},${c})`);
     return true;
   }
-  
+
   // down
-  if (r + word.length > size) return false;
-  
-  // 日本語クロスワード基本ルール: 単語の前後に文字がないかチェック
-  if (r > 0 && grid[r - 1][c] !== "" && grid[r - 1][c] !== "#") return false;
-  if (r + word.length < size && grid[r + word.length][c] !== "" && grid[r + word.length][c] !== "#") return false;
-  
+  if (r + word.length > size) {
+    console.log(`  ❌ 境界外: r=${r}, word.length=${word.length}, size=${size}`);
+    return false;
+  }
+
+  // クロスワードルール: 単語の前後に文字がないかチェック
+  if (r > 0 && grid[r - 1][c] !== "" && grid[r - 1][c] !== "#") {
+    console.log(`  ❌ 前の文字が存在: grid[${r-1}][${c}] = "${grid[r - 1][c]}"`);
+    return false;
+  }
+  if (r + word.length < size && grid[r + word.length][c] !== "" && grid[r + word.length][c] !== "#") {
+    console.log(`  ❌ 後の文字が存在: grid[${r + word.length}][${c}] = "${grid[r + word.length][c]}"`);
+    return false;
+  }
+
   for (let i = 0; i < word.length; i++) {
     const cell = grid[r + i][c];
-    if (cell && cell !== word[i]) return false;
-    if (cell === "#") return false;
-    
-    // 交差点ではヨコ・タテ双方の文字が一致していなければならない
+    if (cell && cell !== word[i]) {
+      console.log(`  ❌ 文字不一致: grid[${r+i}][${c}] = "${cell}", word[${i}] = "${word[i]}"`);
+      return false;
+    }
+    if (cell === "#") {
+      console.log(`  ❌ 黒マス: grid[${r+i}][${c}] = "#"`);
+      return false;
+    }
+
+    // 交差点のチェック
     if (c > 0 && grid[r + i][c - 1] !== "" && grid[r + i][c - 1] !== "#") {
-      if (i === 0 || i === word.length - 1) return false; // 端の文字は交差できない
+      // 交差は許可するが、文字が一致する必要がある
+      if (grid[r + i][c - 1] !== word[i]) {
+        console.log(`  ❌ 左側交差文字不一致: grid[${r+i}][${c-1}] = "${grid[r + i][c - 1]}", word[${i}] = "${word[i]}"`);
+        return false;
+      }
     }
     if (c < size - 1 && grid[r + i][c + 1] !== "" && grid[r + i][c + 1] !== "#") {
-      if (i === 0 || i === word.length - 1) return false; // 端の文字は交差できない
+      // 交差は許可するが、文字が一致する必要がある
+      if (grid[r + i][c + 1] !== word[i]) {
+        console.log(`  ❌ 右側交差文字不一致: grid[${r+i}][${c+1}] = "${grid[r + i][c + 1]}", word[${i}] = "${word[i]}"`);
+        return false;
+      }
     }
   }
+  console.log(`  ✅ down配置可能: "${word}" at (${r},${c})`);
   return true;
 }
 
@@ -173,70 +246,111 @@ function placeWord(grid, word, r, c, dir) {
 }
 
 function generatePuzzle(puzzle) {
+  console.log('generatePuzzle開始:', puzzle);
+  
   const longest = Math.max(...puzzle.words.map(w => w.answer.length));
   let size = Math.max(9, longest + 4);
+  
+  // 単語数に応じてグリッドサイズを調整
+  const wordCount = puzzle.words.length;
+  if (wordCount > 8) {
+    size = Math.max(size, 12);
+  }
+  if (wordCount > 12) {
+    size = Math.max(size, 15);
+  }
+  
+  console.log(`グリッドサイズ: ${size}x${size}, 単語数: ${wordCount}`);
   let grid = createEmptyGrid(size);
 
+  // 単語を長さでソート（長い単語から配置）
   const words = [...puzzle.words].sort((a, b) => b.answer.length - a.answer.length);
+  console.log('ソートされた単語（長い順）:', words);
+  
+  // 交差可能性の高い単語を優先
+  const optimizedWords = optimizeWordOrder(words);
+  console.log('最適化された単語順序:', optimizedWords.map(w => w.answer));
 
+  // 完全なクロスワード生成
+  const placed = [];
+  
   // 1語目を中央横配置
-  const first = words[0].answer;
+  const first = optimizedWords[0].answer;
   const startCol = Math.floor((size - first.length) / 2);
   const midRow = Math.floor(size / 2);
+  console.log(`1語目配置: "${first}" at (${midRow},${startCol}) across`);
   placeWord(grid, first, midRow, startCol, "across");
-  const placed = [ { ...words[0], row: midRow, col: startCol, dir: "across" } ];
+  placed.push({ ...optimizedWords[0], row: midRow, col: startCol, dir: "across" });
+  
+      // 残りの単語を交差のみで配置
+    for (let wi = 1; wi < optimizedWords.length; wi++) {
+      const w = optimizedWords[wi].answer;
+      console.log(`\n=== 単語 "${w}" の交差配置を試行中... ===`);
+      console.log(`現在配置済み: ${placed.length}個`);
+      placed.forEach((p, i) => console.log(`  ${i+1}: "${p.answer}" at (${p.row},${p.col}) ${p.dir}`));
+      
+      let placedWord = false;
 
-  // 残りを順に試行
-  outer: for (let wi = 1; wi < words.length; wi++) {
-    const w = words[wi].answer;
-    let placedWord = false;
-    
-    // 既に配置された単語との交差を試行
-    for (const placedWord of placed) {
-      for (let pi = 0; pi < placedWord.answer.length; pi++) {
-        const pChar = placedWord.answer[pi];
-        for (let wiChar = 0; wiChar < w.length; wiChar++) {
-          if (w[wiChar] !== pChar) continue;
-          
-          let r, c, dir;
-          if (placedWord.dir === "across") {
-            dir = "down";
-            r = placedWord.row - wiChar;
-            c = placedWord.col + pi;
-          } else {
-            dir = "across";
-            r = placedWord.row + pi;
-            c = placedWord.col - wiChar;
+      // 既に配置された単語との交差を試行
+      for (const existingWord of placed) {
+        console.log(`\n--- "${existingWord.answer}" との交差を試行 ---`);
+        for (let pi = 0; pi < existingWord.answer.length; pi++) {
+          const pChar = existingWord.answer[pi];
+          for (let wiChar = 0; wiChar < w.length; wiChar++) {
+            if (w[wiChar] !== pChar) continue;
+
+            // 交差方向を決定
+            let r, c, dir;
+            if (existingWord.dir === "across") {
+              dir = "down";
+              r = existingWord.row - wiChar;
+              c = existingWord.col + pi;
+            } else {
+              dir = "across";
+              r = existingWord.row + pi;
+              c = existingWord.col - wiChar;
+            }
+
+            console.log(`交差試行: "${w}" の "${w[wiChar]}" と "${existingWord.answer}" の "${pChar}" at (${r},${c}) ${dir}`);
+
+            // 境界チェック
+            if (r < 0 || c < 0 ||
+                (dir === "across" && c + w.length > size) ||
+                (dir === "down" && r + w.length > size)) {
+              console.log(`境界外: (${r},${c}) - スキップ`);
+              continue;
+            }
+
+            // 配置可能かチェック
+            console.log(`canPlace チェック: "${w}" at (${r},${c}) ${dir}`);
+            if (canPlace(grid, w, r, c, dir)) {
+              console.log(`✅ 配置成功: "${w}" at (${r},${c}) ${dir}`);
+              placeWord(grid, w, r, c, dir);
+              placed.push({ ...optimizedWords[wi], row: r, col: c, dir, answer: w });
+              placedWord = true;
+              break;
+            } else {
+              console.log(`❌ 配置失敗: "${w}" at (${r},${c}) ${dir}`);
+            }
           }
-          
-          // 境界チェック
-          if (r < 0 || c < 0 || 
-              (dir === "across" && c + w.length > size) ||
-              (dir === "down" && r + w.length > size)) continue;
-          
-          // 配置可能かチェック
-          if (canPlace(grid, w, r, c, dir)) {
-            placeWord(grid, w, r, c, dir);
-            placed.push({ ...words[wi], row: r, col: c, dir, answer: w });
-            placedWord = true;
-            break outer;
-          }
+          if (placedWord) break;
         }
         if (placedWord) break;
       }
-      if (placedWord) break;
-    }
-    
-    // 交差できなかった場合は独立して配置
+
+    // 交差できなかった場合は失敗
     if (!placedWord) {
-      for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-          if (canPlace(grid, w, r, c, "across")) {
-            placeWord(grid, w, r, c, "across");
-            placed.push({ ...words[wi], row: r, col: c, dir: "across", answer: w });
-            break outer;
-          }
-        }
+      console.log(`交差配置失敗: "${w}" - 独立配置は許可しません`);
+      // 失敗した場合は最初からやり直し（最大10回まで）
+      if (retryCount < 10) {
+        retryCount++;
+        console.log(`再試行 ${retryCount}/10`);
+        return generatePuzzle(puzzle);
+      } else {
+        console.log('最大再試行回数に達しました');
+        retryCount = 0;
+        // 最後の手段として独立配置を許可
+        return generatePuzzleWithFallback(puzzle);
       }
     }
   }
@@ -297,11 +411,220 @@ function generatePuzzle(puzzle) {
     numbering[`${pos.row},${pos.col}`] = num++;
   });
   
-  // ステップ③：カギ（ヒント文）のリストを作る
+                    // ステップ③：カギ（ヒント文）のリストを作る
+                  console.log('startPositions:', startPositions);
+                  console.log('numbering:', numbering);
+                  console.log('placed words:', placed);
+                  
+                  startPositions.forEach(pos => {
+                    const no = numbering[`${pos.row},${pos.col}`];
+                    console.log(`位置 (${pos.row},${pos.col}) の番号: ${no}`);
+
+                    // ヨコの単語を検索
+                    if (pos.across) {
+                      let word = "";
+                      let col = pos.col;
+                      while (col < size && grid[pos.row][col] !== "#") {
+                        word += grid[pos.row][col];
+                        col++;
+                      }
+                      console.log(`ヨコ単語: "${word}" at (${pos.row},${pos.col})`);
+                      if (word.length > 1) {
+                        const placedWord = placed.find(w => w.row === pos.row && w.col === pos.col && w.dir === "across");
+                        if (placedWord) {
+                          across.push({ number: no, clue: placedWord.clue, answer: placedWord.answer });
+                          console.log(`ヨコ単語追加: ${placedWord.answer} - ${placedWord.clue}`);
+                        } else {
+                          console.log(`ヨコ単語が見つかりません: (${pos.row},${pos.col})`);
+                        }
+                      }
+                    }
+
+                    // タテの単語を検索
+                    if (pos.down) {
+                      let word = "";
+                      let row = pos.row;
+                      while (row < size && grid[row][pos.col] !== "#") {
+                        word += grid[row][pos.col];
+                        row++;
+                      }
+                      console.log(`タテ単語: "${word}" at (${pos.row},${pos.col})`);
+                      if (word.length > 1) {
+                        const placedWord = placed.find(w => w.row === pos.row && w.col === pos.col && w.dir === "down");
+                        console.log(`タテ単語検索: 位置(${pos.row},${pos.col}) 方向:down`);
+                        console.log(`配置済み単語:`, placed.map(p => `"${p.answer}" at (${p.row},${p.col}) ${p.dir}`));
+                        if (placedWord) {
+                          down.push({ number: no, clue: placedWord.clue, answer: placedWord.answer });
+                          console.log(`✅ タテ単語追加: ${placedWord.answer} - ${placedWord.clue}`);
+                        } else {
+                          console.log(`❌ タテ単語が見つかりません: (${pos.row},${pos.col})`);
+                          console.log(`該当する配置済み単語:`, placed.filter(w => w.row === pos.row && w.col === pos.col));
+                        }
+                      }
+                    }
+                  });
+
+  // 日本語クロスワード基本ルールの制約チェック
+  const constraints = validateJapaneseCrosswordRules(grid);
+  if (!constraints.valid) {
+    console.warn('日本語クロスワード基本ルール違反:', constraints.violations);
+  }
+
+                    console.log('\n=== 最終結果 ===');
+                  console.log(`配置された単語数: ${placed.length}/${words.length}`);
+                  const acrossCount = placed.filter(p => p.dir === "across").length;
+                  const downCount = placed.filter(p => p.dir === "down").length;
+                  console.log(`縦横の内訳: ヨコ${acrossCount}個, タテ${downCount}個`);
+                  console.log('配置された単語詳細:');
+                  placed.forEach((p, i) => {
+                    console.log(`  ${i+1}: "${p.answer}" at (${p.row},${p.col}) ${p.dir} - ${p.clue}`);
+                  });
+                  console.log('ヨコのカギ:', across);
+                  console.log('タテのカギ:', down);
+                  console.log('グリッド:');
+                  grid.forEach((row, i) => {
+                    console.log(`  ${i}: ${row.join(' ')}`);
+                  });
+                  
+                  return { grid, across, down, constraints, numbering };
+}
+
+// フォールバック用のクロスワード生成（独立配置を許可）
+function generatePuzzleWithFallback(puzzle) {
+  console.log('フォールバック生成開始');
+  
+  const longest = Math.max(...puzzle.words.map(w => w.answer.length));
+  let size = Math.max(9, longest + 4);
+  
+  const wordCount = puzzle.words.length;
+  if (wordCount > 8) {
+    size = Math.max(size, 12);
+  }
+  if (wordCount > 12) {
+    size = Math.max(size, 15);
+  }
+  
+  let grid = createEmptyGrid(size);
+  const words = [...puzzle.words].sort((a, b) => b.answer.length - a.answer.length);
+  const placed = [];
+  
+  // 1語目を中央横配置
+  const first = words[0].answer;
+  const startCol = Math.floor((size - first.length) / 2);
+  const midRow = Math.floor(size / 2);
+  placeWord(grid, first, midRow, startCol, "across");
+  placed.push({ ...words[0], row: midRow, col: startCol, dir: "across" });
+  
+  // 残りの単語を交差または独立配置
+  for (let wi = 1; wi < words.length; wi++) {
+    const w = words[wi].answer;
+    let placedWord = false;
+    
+    // まず交差を試行
+    for (const placedWord of placed) {
+      for (let pi = 0; pi < placedWord.answer.length; pi++) {
+        const pChar = placedWord.answer[pi];
+        for (let wiChar = 0; wiChar < w.length; wiChar++) {
+          if (w[wiChar] !== pChar) continue;
+          
+          let r, c, dir;
+          if (placedWord.dir === "across") {
+            dir = "down";
+            r = placedWord.row - wiChar;
+            c = placedWord.col + pi;
+          } else {
+            dir = "across";
+            r = placedWord.row + pi;
+            c = placedWord.col - wiChar;
+          }
+          
+          if (r >= 0 && c >= 0 &&
+              (dir === "across" && c + w.length <= size) ||
+              (dir === "down" && r + w.length <= size)) {
+            if (canPlace(grid, w, r, c, dir)) {
+              placeWord(grid, w, r, c, dir);
+              placed.push({ ...words[wi], row: r, col: c, dir, answer: w });
+              placedWord = true;
+              break;
+            }
+          }
+        }
+        if (placedWord) break;
+      }
+      if (placedWord) break;
+    }
+    
+    // 交差できない場合は独立配置
+    if (!placedWord) {
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (canPlace(grid, w, r, c, "across")) {
+            placeWord(grid, w, r, c, "across");
+            placed.push({ ...words[wi], row: r, col: c, dir: "across", answer: w });
+            placedWord = true;
+            break;
+          }
+        }
+        if (placedWord) break;
+      }
+    }
+  }
+  
+  // 未使用セルを黒マスに
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (grid[r][c] === "") grid[r][c] = "#";
+    }
+  }
+  
+  // 番号付けとヒント生成（既存のロジックと同じ）
+  let num = 1;
+  const numbering = {};
+  const across = [], down = [];
+  
+  const startPositions = [];
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (grid[r][c] === "#") continue;
+      
+      let acrossWordLength = 0;
+      if (c < size - 1 && grid[r][c+1] !== "#") {
+        let col = c;
+        while (col < size && grid[r][col] !== "#") {
+          acrossWordLength++;
+          col++;
+        }
+      }
+      const isStartAcross = (c === 0 || grid[r][c-1] === "#") && acrossWordLength >= 2;
+      
+      let downWordLength = 0;
+      if (r < size - 1 && grid[r+1][c] !== "#") {
+        let row = r;
+        while (row < size && grid[row][c] !== "#") {
+          downWordLength++;
+          row++;
+        }
+      }
+      const isStartDown = (r === 0 || grid[r-1][c] === "#") && downWordLength >= 2;
+      
+      if (isStartAcross || isStartDown) {
+        startPositions.push({ row: r, col: c, across: isStartAcross, down: isStartDown });
+      }
+    }
+  }
+  
+  startPositions.sort((a, b) => {
+    if (a.row !== b.row) return a.row - b.row;
+    return a.col - b.col;
+  });
+  
+  startPositions.forEach(pos => {
+    numbering[`${pos.row},${pos.col}`] = num++;
+  });
+  
   startPositions.forEach(pos => {
     const no = numbering[`${pos.row},${pos.col}`];
     
-    // ヨコの単語を検索
     if (pos.across) {
       let word = "";
       let col = pos.col;
@@ -317,7 +640,6 @@ function generatePuzzle(puzzle) {
       }
     }
     
-    // タテの単語を検索
     if (pos.down) {
       let word = "";
       let row = pos.row;
@@ -333,14 +655,55 @@ function generatePuzzle(puzzle) {
       }
     }
   });
-
-  // 日本語クロスワード基本ルールの制約チェック
+  
   const constraints = validateJapaneseCrosswordRules(grid);
-  if (!constraints.valid) {
-    console.warn('日本語クロスワード基本ルール違反:', constraints.violations);
-  }
-
+  
   return { grid, across, down, constraints, numbering };
+}
+
+// 単語順序最適化関数
+function optimizeWordOrder(words) {
+  const optimized = [];
+  const used = new Set();
+  
+  // 最初の単語（最長の単語）
+  optimized.push(words[0]);
+  used.add(words[0].answer);
+  
+  // 残りの単語を交差可能性でソート
+  const remaining = words.slice(1);
+  while (remaining.length > 0) {
+    let bestWord = null;
+    let bestScore = -1;
+    
+    for (const word of remaining) {
+      let score = 0;
+      for (const placedWord of optimized) {
+        // 共通文字の数をスコアとして計算
+        for (const char of word.answer) {
+          if (placedWord.answer.includes(char)) {
+            score++;
+          }
+        }
+      }
+      
+      if (score > bestScore) {
+        bestScore = score;
+        bestWord = word;
+      }
+    }
+    
+    if (bestWord) {
+      optimized.push(bestWord);
+      remaining.splice(remaining.indexOf(bestWord), 1);
+    } else {
+      // 交差可能性がない場合は残りをそのまま追加
+      optimized.push(...remaining);
+      break;
+    }
+  }
+  
+  return optimized;
 }
 
 // クロスワードビルダー.comのルールに従った制約チェック関数
@@ -458,6 +821,9 @@ function dfs(grid, r, c, visited, region) {
 let currentPuzzle = null;
 let answerMap = {};
 let currentPuzzleIndex = 0;
+let currentDifficulty = 'beginner';
+let currentPuzzleInDifficulty = 0;
+let retryCount = 0;
 
 // 翻訳データ
 const translations = {
@@ -485,7 +851,9 @@ const translations = {
         brain_training_desc: 'クロスワードパズル集',
         dictionary: '国語辞典・辞書',
         dictionary_desc: '語彙力アップに',
-        puzzle_select: 'パズル選択'
+        puzzle_select: 'パズル選択',
+        intermediate: '中級',
+        advanced: '上級'
     },
     en: {
         daily_puzzle: 'Today\'s Puzzle',
@@ -511,7 +879,9 @@ const translations = {
         brain_training_desc: 'Crossword Puzzle Collection',
         dictionary: 'Dictionary',
         dictionary_desc: 'Improve Vocabulary',
-        puzzle_select: 'Puzzle Selection'
+        puzzle_select: 'Puzzle Selection',
+        intermediate: 'Intermediate',
+        advanced: 'Advanced'
     }
 };
 
@@ -529,6 +899,9 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('CrosPuzz アプリケーション開始');
     loadSettings();
     initializePuzzleSelect();
+    
+    // デフォルトで初級の最初のパズルを選択
+    selectPuzzle('beginner', 0);
     initializeGame();
     
     // PWA service worker registration
@@ -544,16 +917,33 @@ function initializePuzzleSelect() {
     const select = document.getElementById('puzzleSelect');
     if (!select) return;
     
-    puzzles.forEach((puzzle, index) => {
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = `${index + 1}. ${puzzle.title}`;
-        select.appendChild(option);
+    select.innerHTML = '';
+    
+    // 難易度別のパズルを追加
+    const difficulties = [
+        { key: 'beginner', label: '初級' },
+        { key: 'intermediate', label: '中級' },
+        { key: 'advanced', label: '上級' }
+    ];
+    
+    difficulties.forEach(difficulty => {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = difficulty.label;
+        
+        puzzles[difficulty.key].forEach((puzzle, index) => {
+            const option = document.createElement('option');
+            option.value = `${difficulty.key}_${index}`;
+            option.textContent = puzzle.title;
+            optgroup.appendChild(option);
+        });
+        
+        select.appendChild(optgroup);
     });
     
     select.addEventListener('change', function(e) {
-        const selectedIndex = parseInt(e.target.value);
-        selectPuzzle(selectedIndex);
+        const selectedValue = e.target.value;
+        const [difficulty, index] = selectedValue.split('_');
+        selectPuzzle(difficulty, parseInt(index));
     });
 }
 
@@ -611,7 +1001,14 @@ function initializeGame(forceInit = false) {
         document.body.classList.add('font-size-base');
         updateTranslations();
     }
-    renderPuzzle(currentPuzzleIndex);
+    
+    // 既にパズルが選択されている場合はそれを使用、そうでなければデフォルトを選択
+    if (!currentPuzzle) {
+        selectPuzzle('beginner', 0);
+    } else {
+        renderPuzzle(currentPuzzleIndex);
+    }
+    
     loadGameState();
     updateProgress();
     startTimer();
@@ -624,11 +1021,24 @@ function initializeGame(forceInit = false) {
 
 // パズル描画
 function renderPuzzle(index) {
+    console.log('renderPuzzle開始: index=', index);
+    
     const target = document.getElementById('crosswordGrid');
     target.innerHTML = '';
     
-    const data = generatePuzzle(puzzles[index]);
-    currentPuzzle = data;
+    let data;
+    if (currentPuzzle) {
+        // 既に動的生成されたパズルがある場合はそれを使用
+        data = currentPuzzle;
+        console.log('既存のパズルデータを使用:', data);
+    } else {
+        // 初回またはデフォルトパズルの場合
+        const defaultPuzzle = puzzles.beginner[0];
+        console.log('デフォルトパズルを使用:', defaultPuzzle);
+        data = generatePuzzle(defaultPuzzle);
+        currentPuzzle = data;
+    }
+    
     answerMap = {};
     currentPuzzleIndex = index;
 
@@ -714,10 +1124,22 @@ function renderPuzzle(index) {
 
 // Create clues
 function createClues(data) {
+    console.log('createClues開始:', data);
+    
     const acrossContainer = document.getElementById('acrossClues');
     const downContainer = document.getElementById('downClues');
+    const mobileAcrossContainer = document.getElementById('mobileAcrossClues');
+    const mobileDownContainer = document.getElementById('mobileDownClues');
     
-    // Across clues
+    if (!acrossContainer || !downContainer) {
+        console.error('ヒントコンテナが見つかりません');
+        return;
+    }
+    
+    console.log('Across clues:', data.across);
+    console.log('Down clues:', data.down);
+    
+    // Across clues (PC用)
     acrossContainer.innerHTML = '';
     data.across.sort((a,b) => a.number - b.number).forEach(item => {
         const clueElement = document.createElement('div');
@@ -730,7 +1152,7 @@ function createClues(data) {
         acrossContainer.appendChild(clueElement);
     });
     
-    // Down clues
+    // Down clues (PC用)
     downContainer.innerHTML = '';
     data.down.sort((a,b) => a.number - b.number).forEach(item => {
         const clueElement = document.createElement('div');
@@ -742,6 +1164,35 @@ function createClues(data) {
         `;
         downContainer.appendChild(clueElement);
     });
+    
+    // モバイル用のカギも作成
+    if (mobileAcrossContainer && mobileDownContainer) {
+        // Across clues (モバイル用)
+        mobileAcrossContainer.innerHTML = '';
+        data.across.sort((a,b) => a.number - b.number).forEach(item => {
+            const clueElement = document.createElement('div');
+            clueElement.className = 'flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors clue-item';
+            clueElement.onclick = () => highlightWord(item.number, 'across');
+            clueElement.innerHTML = `
+                <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-bold">${item.number}</span>
+                <span class="text-gray-700 dark:text-gray-300">${item.clue}</span>
+            `;
+            mobileAcrossContainer.appendChild(clueElement);
+        });
+        
+        // Down clues (モバイル用)
+        mobileDownContainer.innerHTML = '';
+        data.down.sort((a,b) => a.number - b.number).forEach(item => {
+            const clueElement = document.createElement('div');
+            clueElement.className = 'flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors clue-item';
+            clueElement.onclick = () => highlightWord(item.number, 'down');
+            clueElement.innerHTML = `
+                <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-bold">${item.number}</span>
+                <span class="text-gray-700 dark:text-gray-300">${item.clue}</span>
+            `;
+            mobileDownContainer.appendChild(clueElement);
+        });
+    }
     
     console.log('手がかり作成完了');
 }
@@ -1285,9 +1736,56 @@ function setFontSize(size) {
 }
 
 // パズル選択機能
-function selectPuzzle(index) {
-    currentPuzzleIndex = index;
-    renderPuzzle(index);
+function selectPuzzle(difficulty, index) {
+  console.log(`パズル選択開始: difficulty=${difficulty}, index=${index}`);
+
+  currentDifficulty = difficulty;
+  currentPuzzleInDifficulty = index;
+  currentPuzzleIndex = 0; // 動的生成用のインデックスは0にリセット
+
+  // 選択されたパズルを動的生成
+  const selectedPuzzle = puzzles[difficulty][index];
+  console.log('選択されたパズル:', selectedPuzzle);
+  console.log('パズルタイトル:', selectedPuzzle.title);
+  console.log('パズル単語:', selectedPuzzle.words.map(w => w.answer));
+  console.log('ファイルバージョン確認: 動物の名前パズルが読み込まれているかチェック');
+    
+    const data = generatePuzzle(selectedPuzzle);
+    console.log('生成されたパズルデータ:', data);
+    
+    currentPuzzle = data;
+    answerMap = {};
+    
+    renderPuzzle(0); // 動的生成されたパズルを表示
+    saveGameState();
+    updateProgress();
+    
     // パズルタイトルを更新
-    document.querySelector('[data-i18n="daily_puzzle"]').textContent = puzzles[index].title;
+    const titleElement = document.querySelector('[data-i18n="daily_puzzle"]');
+    if (titleElement) {
+        titleElement.textContent = selectedPuzzle.title;
+    }
+    
+    // 難易度バッジを更新
+    updateDifficultyBadge(difficulty);
+    
+    console.log(`パズル選択完了: ${difficulty} - ${selectedPuzzle.title}`);
+}
+
+// 難易度バッジを更新する関数
+function updateDifficultyBadge(difficulty) {
+    const badge = document.querySelector('.inline-flex.items-center.px-3.py-1.rounded-full.text-sm.font-medium');
+    if (!badge) return;
+    
+    const difficultyLabels = {
+        'beginner': { text: '初級', bg: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' },
+        'intermediate': { text: '中級', bg: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' },
+        'advanced': { text: '上級', bg: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' }
+    };
+    
+    const difficultyInfo = difficultyLabels[difficulty];
+    if (difficultyInfo) {
+        badge.className = `inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${difficultyInfo.bg}`;
+        badge.querySelector('span').textContent = difficultyInfo.text;
+    }
 } 
