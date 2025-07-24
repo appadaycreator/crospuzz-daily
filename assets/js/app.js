@@ -2,6 +2,9 @@
 // Version: 1.0.0
 // Author: AppAdayCreator
 
+// グローバル変数
+let retryCount = 0;
+
 // パズルデータ（難易度別）
 console.log('パズルデータ読み込み開始');
 let puzzles = {};
@@ -79,29 +82,25 @@ function canPlace(grid, word, r, c, dir) {
 
     for (let i = 0; i < word.length; i++) {
       const cell = grid[r][c + i];
-      if (cell && cell !== word[i]) {
-        console.log(`  ❌ 文字不一致: grid[${r}][${c+i}] = "${cell}", word[${i}] = "${word[i]}"`);
-        return false;
-      }
       if (cell === "#") {
         console.log(`  ❌ 黒マス: grid[${r}][${c+i}] = "#"`);
         return false;
       }
+      
+      // 既存の文字がある場合は一致する必要がある
+      if (cell && cell !== word[i]) {
+        console.log(`  ❌ 文字不一致: grid[${r}][${c+i}] = "${cell}", word[${i}] = "${word[i]}"`);
+        return false;
+      }
 
-      // 交差点のチェック
+      // 交差点のチェック（より柔軟に）
       if (r > 0 && grid[r - 1][c + i] !== "" && grid[r - 1][c + i] !== "#") {
-        // 交差は許可するが、文字が一致する必要がある
-        if (grid[r - 1][c + i] !== word[i]) {
-          console.log(`  ❌ 上側交差文字不一致: grid[${r-1}][${c+i}] = "${grid[r - 1][c + i]}", word[${i}] = "${word[i]}"`);
-          return false;
-        }
+        // 上側に文字がある場合、交差として許可
+        console.log(`  ℹ️ 上側交差: grid[${r-1}][${c+i}] = "${grid[r - 1][c + i]}"`);
       }
       if (r < size - 1 && grid[r + 1][c + i] !== "" && grid[r + 1][c + i] !== "#") {
-        // 交差は許可するが、文字が一致する必要がある
-        if (grid[r + 1][c + i] !== word[i]) {
-          console.log(`  ❌ 下側交差文字不一致: grid[${r+1}][${c+i}] = "${grid[r + 1][c + i]}", word[${i}] = "${word[i]}"`);
-          return false;
-        }
+        // 下側に文字がある場合、交差として許可
+        console.log(`  ℹ️ 下側交差: grid[${r+1}][${c+i}] = "${grid[r + 1][c + i]}"`);
       }
     }
     console.log(`  ✅ across配置可能: "${word}" at (${r},${c})`);
@@ -126,29 +125,25 @@ function canPlace(grid, word, r, c, dir) {
 
   for (let i = 0; i < word.length; i++) {
     const cell = grid[r + i][c];
-    if (cell && cell !== word[i]) {
-      console.log(`  ❌ 文字不一致: grid[${r+i}][${c}] = "${cell}", word[${i}] = "${word[i]}"`);
-      return false;
-    }
     if (cell === "#") {
       console.log(`  ❌ 黒マス: grid[${r+i}][${c}] = "#"`);
       return false;
     }
+    
+    // 既存の文字がある場合は一致する必要がある
+    if (cell && cell !== word[i]) {
+      console.log(`  ❌ 文字不一致: grid[${r+i}][${c}] = "${cell}", word[${i}] = "${word[i]}"`);
+      return false;
+    }
 
-    // 交差点のチェック
+    // 交差点のチェック（より柔軟に）
     if (c > 0 && grid[r + i][c - 1] !== "" && grid[r + i][c - 1] !== "#") {
-      // 交差は許可するが、文字が一致する必要がある
-      if (grid[r + i][c - 1] !== word[i]) {
-        console.log(`  ❌ 左側交差文字不一致: grid[${r+i}][${c-1}] = "${grid[r + i][c - 1]}", word[${i}] = "${word[i]}"`);
-        return false;
-      }
+      // 左側に文字がある場合、交差として許可
+      console.log(`  ℹ️ 左側交差: grid[${r+i}][${c-1}] = "${grid[r + i][c - 1]}"`);
     }
     if (c < size - 1 && grid[r + i][c + 1] !== "" && grid[r + i][c + 1] !== "#") {
-      // 交差は許可するが、文字が一致する必要がある
-      if (grid[r + i][c + 1] !== word[i]) {
-        console.log(`  ❌ 右側交差文字不一致: grid[${r+i}][${c+1}] = "${grid[r + i][c + 1]}", word[${i}] = "${word[i]}"`);
-        return false;
-      }
+      // 右側に文字がある場合、交差として許可
+      console.log(`  ℹ️ 右側交差: grid[${r+i}][${c+1}] = "${grid[r + i][c + 1]}"`);
     }
   }
   console.log(`  ✅ down配置可能: "${word}" at (${r},${c})`);
@@ -167,15 +162,15 @@ function generatePuzzle(puzzle) {
   console.log('generatePuzzle開始:', puzzle);
   
   const longest = Math.max(...puzzle.words.map(w => w.answer.length));
-  let size = Math.max(9, longest + 4);
+  let size = Math.max(15, longest + 6); // グリッドサイズを大きくする
   
   // 単語数に応じてグリッドサイズを調整
   const wordCount = puzzle.words.length;
   if (wordCount > 8) {
-    size = Math.max(size, 12);
+    size = Math.max(size, 18);
   }
   if (wordCount > 12) {
-    size = Math.max(size, 15);
+    size = Math.max(size, 21);
   }
   
   console.log(`グリッドサイズ: ${size}x${size}, 単語数: ${wordCount}`);
@@ -200,79 +195,83 @@ function generatePuzzle(puzzle) {
   placeWord(grid, first, midRow, startCol, "across");
   placed.push({ ...optimizedWords[0], row: midRow, col: startCol, dir: "across" });
 
-  // 2語目を中央縦配置（交差を確実にするため）
+  // 2語目を確実に縦配置（1語目と交差するように）
   if (optimizedWords.length > 1) {
     const second = optimizedWords[1].answer;
-    const secondStartRow = Math.floor((size - second.length) / 2);
-    const secondCol = Math.floor(size / 2);
-    console.log(`2語目配置: "${second}" at (${secondStartRow},${secondCol}) down`);
-    placeWord(grid, second, secondStartRow, secondCol, "down");
-    placed.push({ ...optimizedWords[1], row: secondStartRow, col: secondCol, dir: "down" });
+    // 1語目の中央付近で交差する位置を探す
+    const firstMid = Math.floor(first.length / 2);
+    const secondMid = Math.floor(second.length / 2);
+    const secondRow = midRow - secondMid;
+    const secondCol = startCol + firstMid;
+    
+    console.log(`2語目配置: "${second}" at (${secondRow},${secondCol}) down`);
+    placeWord(grid, second, secondRow, secondCol, "down");
+    placed.push({ ...optimizedWords[1], row: secondRow, col: secondCol, dir: "down" });
   }
   
-      // 残りの単語を交差のみで配置
-    for (let wi = 2; wi < optimizedWords.length; wi++) {
-      const w = optimizedWords[wi].answer;
-      console.log(`\n=== 単語 "${w}" の交差配置を試行中... ===`);
-      console.log(`現在配置済み: ${placed.length}個`);
-      placed.forEach((p, i) => console.log(`  ${i+1}: "${p.answer}" at (${p.row},${p.col}) ${p.dir}`));
-      
-      let placedWord = false;
+  // 残りの単語を交差のみで配置
+  for (let wi = 2; wi < optimizedWords.length; wi++) {
+    const w = optimizedWords[wi].answer;
+    console.log(`\n=== 単語 "${w}" の交差配置を試行中... ===`);
+    console.log(`現在配置済み: ${placed.length}個`);
+    placed.forEach((p, i) => console.log(`  ${i+1}: "${p.answer}" at (${p.row},${p.col}) ${p.dir}`));
+    
+    let placedWord = false;
 
-      // 既に配置された単語との交差を試行
-      for (const existingWord of placed) {
-        console.log(`\n--- "${existingWord.answer}" との交差を試行 ---`);
-        for (let pi = 0; pi < existingWord.answer.length; pi++) {
-          const pChar = existingWord.answer[pi];
-          for (let wiChar = 0; wiChar < w.length; wiChar++) {
-            if (w[wiChar] !== pChar) continue;
+    // 既に配置された単語との交差を試行
+    for (const existingWord of placed) {
+      console.log(`\n--- "${existingWord.answer}" との交差を試行 ---`);
+      for (let pi = 0; pi < existingWord.answer.length; pi++) {
+        const pChar = existingWord.answer[pi];
+        for (let wiChar = 0; wiChar < w.length; wiChar++) {
+          if (w[wiChar] !== pChar) continue;
 
-            // 交差方向を決定
-            let r, c, dir;
-            if (existingWord.dir === "across") {
-              dir = "down";
-              r = existingWord.row - wiChar;
-              c = existingWord.col + pi;
-            } else {
-              dir = "across";
-              r = existingWord.row + pi;
-              c = existingWord.col - wiChar;
-            }
-
-            console.log(`交差試行: "${w}" の "${w[wiChar]}" と "${existingWord.answer}" の "${pChar}" at (${r},${c}) ${dir}`);
-
-            // 境界チェック
-            if (r < 0 || c < 0 ||
-                (dir === "across" && c + w.length > size) ||
-                (dir === "down" && r + w.length > size)) {
-              console.log(`境界外: (${r},${c}) - スキップ`);
-              continue;
-            }
-
-            // 配置可能かチェック
-            console.log(`canPlace チェック: "${w}" at (${r},${c}) ${dir}`);
-            if (canPlace(grid, w, r, c, dir)) {
-              console.log(`✅ 配置成功: "${w}" at (${r},${c}) ${dir}`);
-              placeWord(grid, w, r, c, dir);
-              placed.push({ ...optimizedWords[wi], row: r, col: c, dir, answer: w });
-              placedWord = true;
-              break;
-            } else {
-              console.log(`❌ 配置失敗: "${w}" at (${r},${c}) ${dir}`);
-            }
+          // 交差方向を決定
+          let r, c, dir;
+          if (existingWord.dir === "across") {
+            dir = "down";
+            r = existingWord.row - wiChar;
+            c = existingWord.col + pi;
+          } else {
+            dir = "across";
+            r = existingWord.row + pi;
+            c = existingWord.col - wiChar;
           }
-          if (placedWord) break;
+
+          console.log(`交差試行: "${w}" の "${w[wiChar]}" と "${existingWord.answer}" の "${pChar}" at (${r},${c}) ${dir}`);
+
+          // 境界チェック
+          if (r < 0 || c < 0 ||
+              (dir === "across" && c + w.length > size) ||
+              (dir === "down" && r + w.length > size)) {
+            console.log(`境界外: (${r},${c}) - スキップ`);
+            continue;
+          }
+
+          // 配置可能かチェック
+          console.log(`canPlace チェック: "${w}" at (${r},${c}) ${dir}`);
+          if (canPlace(grid, w, r, c, dir)) {
+            console.log(`✅ 配置成功: "${w}" at (${r},${c}) ${dir}`);
+            placeWord(grid, w, r, c, dir);
+            placed.push({ ...optimizedWords[wi], row: r, col: c, dir, answer: w });
+            placedWord = true;
+            break;
+          } else {
+            console.log(`❌ 配置失敗: "${w}" at (${r},${c}) ${dir}`);
+          }
         }
         if (placedWord) break;
       }
+      if (placedWord) break;
+    }
 
     // 交差できなかった場合は失敗
     if (!placedWord) {
       console.log(`交差配置失敗: "${w}" - 独立配置は許可しません`);
-      // 失敗した場合は最初からやり直し（最大10回まで）
-      if (retryCount < 10) {
+      // 失敗した場合は最初からやり直し（最大5回まで）
+      if (retryCount < 5) {
         retryCount++;
-        console.log(`再試行 ${retryCount}/10`);
+        console.log(`再試行 ${retryCount}/5`);
         return generatePuzzle(puzzle);
       } else {
         console.log('最大再試行回数に達しました');
@@ -299,122 +298,77 @@ function generatePuzzle(puzzle) {
   const startPositions = [];
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
-      if (grid[r][c] === "#") continue;
-      
-      // ヨコの語頭判定：左側が黒マスまたは盤外で、右側に文字がある（2文字以上）
-      let acrossWordLength = 0;
-      if (c < size - 1 && grid[r][c+1] !== "#") {
-        let col = c;
-        while (col < size && grid[r][col] !== "#") {
-          acrossWordLength++;
-          col++;
+      if (grid[r][c] !== "#") {
+        // 左側または上側が黒マスまたは境界外の場合、語頭
+        const isStart = (c === 0 || grid[r][c - 1] === "#") || 
+                       (r === 0 || grid[r - 1][c] === "#");
+        if (isStart) {
+          startPositions.push({ r, c });
         }
-      }
-      const isStartAcross = (c === 0 || grid[r][c-1] === "#") && acrossWordLength >= 2;
-      
-      // タテの語頭判定：上側が黒マスまたは盤外で、下側に文字がある（2文字以上）
-      let downWordLength = 0;
-      if (r < size - 1 && grid[r+1][c] !== "#") {
-        let row = r;
-        while (row < size && grid[row][c] !== "#") {
-          downWordLength++;
-          row++;
-        }
-      }
-      const isStartDown = (r === 0 || grid[r-1][c] === "#") && downWordLength >= 2;
-      
-      if (isStartAcross || isStartDown) {
-        startPositions.push({ row: r, col: c, across: isStartAcross, down: isStartDown });
       }
     }
   }
-  
-  // ステップ②：「Z」の順（左上から右下へ）に数字を振り当てる
+
+  // ステップ②：Z順で番号を付与
   startPositions.sort((a, b) => {
-    if (a.row !== b.row) return a.row - b.row;
-    return a.col - b.col;
+    if (a.r !== b.r) return a.r - b.r;
+    return a.c - b.c;
   });
-  
-  startPositions.forEach(pos => {
-    numbering[`${pos.row},${pos.col}`] = num++;
-  });
-  
-                    // ステップ③：カギ（ヒント文）のリストを作る
-                  console.log('startPositions:', startPositions);
-                  console.log('numbering:', numbering);
-                  console.log('placed words:', placed);
-                  
-                  startPositions.forEach(pos => {
-                    const no = numbering[`${pos.row},${pos.col}`];
-                    console.log(`位置 (${pos.row},${pos.col}) の番号: ${no}`);
 
-                    // ヨコの単語を検索
-                    if (pos.across) {
-                      let word = "";
-                      let col = pos.col;
-                      while (col < size && grid[pos.row][col] !== "#") {
-                        word += grid[pos.row][col];
-                        col++;
-                      }
-                      console.log(`ヨコ単語: "${word}" at (${pos.row},${pos.col})`);
-                      if (word.length > 1) {
-                        const placedWord = placed.find(w => w.row === pos.row && w.col === pos.col && w.dir === "across");
-                        if (placedWord) {
-                          across.push({ number: no, clue: placedWord.clue, answer: placedWord.answer });
-                          console.log(`ヨコ単語追加: ${placedWord.answer} - ${placedWord.clue}`);
-                        } else {
-                          console.log(`ヨコ単語が見つかりません: (${pos.row},${pos.col})`);
-                        }
-                      }
-                    }
-
-                    // タテの単語を検索
-                    if (pos.down) {
-                      let word = "";
-                      let row = pos.row;
-                      while (row < size && grid[row][pos.col] !== "#") {
-                        word += grid[row][pos.col];
-                        row++;
-                      }
-                      console.log(`タテ単語: "${word}" at (${pos.row},${pos.col})`);
-                      if (word.length > 1) {
-                        const placedWord = placed.find(w => w.row === pos.row && w.col === pos.col && w.dir === "down");
-                        console.log(`タテ単語検索: 位置(${pos.row},${pos.col}) 方向:down`);
-                        console.log(`配置済み単語:`, placed.map(p => `"${p.answer}" at (${p.row},${p.col}) ${p.dir}`));
-                        if (placedWord) {
-                          down.push({ number: no, clue: placedWord.clue, answer: placedWord.answer });
-                          console.log(`✅ タテ単語追加: ${placedWord.answer} - ${placedWord.clue}`);
-                        } else {
-                          console.log(`❌ タテ単語が見つかりません: (${pos.row},${pos.col})`);
-                          console.log(`該当する配置済み単語:`, placed.filter(w => w.row === pos.row && w.col === pos.col));
-                        }
-                      }
-                    }
-                  });
-
-  // 日本語クロスワード基本ルールの制約チェック
-  const constraints = validateJapaneseCrosswordRules(grid);
-  if (!constraints.valid) {
-    console.warn('日本語クロスワード基本ルール違反:', constraints.violations);
+  for (const pos of startPositions) {
+    numbering[`${pos.r},${pos.c}`] = num;
+    num++;
   }
 
-                    console.log('\n=== 最終結果 ===');
-                  console.log(`配置された単語数: ${placed.length}/${words.length}`);
-                  const acrossCount = placed.filter(p => p.dir === "across").length;
-                  const downCount = placed.filter(p => p.dir === "down").length;
-                  console.log(`縦横の内訳: ヨコ${acrossCount}個, タテ${downCount}個`);
-                  console.log('配置された単語詳細:');
-                  placed.forEach((p, i) => {
-                    console.log(`  ${i+1}: "${p.answer}" at (${p.row},${p.col}) ${p.dir} - ${p.clue}`);
-                  });
-                  console.log('ヨコのカギ:', across);
-                  console.log('タテのカギ:', down);
-                  console.log('グリッド:');
-                  grid.forEach((row, i) => {
-                    console.log(`  ${i}: ${row.join(' ')}`);
-                  });
-                  
-                  return { grid, across, down, constraints, numbering };
+  // ステップ③：ヨコとタテのカギを作成
+  for (const word of placed) {
+    const number = numbering[`${word.row},${word.col}`];
+    const clueData = {
+      number,
+      clue: word.clue,
+      answer: word.answer,
+      row: word.row,
+      col: word.col,
+      length: word.answer.length
+    };
+
+    if (word.dir === "across") {
+      across.push(clueData);
+    } else {
+      down.push(clueData);
+    }
+  }
+
+  // 番号順にソート
+  across.sort((a, b) => a.number - b.number);
+  down.sort((a, b) => a.number - b.number);
+
+  console.log('最終結果:');
+  console.log(`配置された単語数: ${placed.length}/${words.length}`);
+  const acrossCount = placed.filter(p => p.dir === "across").length;
+  const downCount = placed.filter(p => p.dir === "down").length;
+  console.log(`縦横の内訳: ヨコ${acrossCount}個, タテ${downCount}個`);
+  console.log('配置された単語詳細:');
+  placed.forEach((p, i) => {
+    console.log(`  ${i+1}: "${p.answer}" at (${p.row},${p.col}) ${p.dir} - ${p.clue}`);
+  });
+  console.log('ヨコのカギ:', across);
+  console.log('タテのカギ:', down);
+  console.log('グリッド:');
+  grid.forEach((row, i) => {
+    console.log(`  ${i}: ${row.join(' ')}`);
+  });
+
+  return {
+    grid,
+    across,
+    down,
+    constraints: {
+      size,
+      wordCount: placed.length
+    },
+    numbering
+  };
 }
 
 // フォールバック用のクロスワード生成（独立配置を許可）
@@ -773,7 +727,6 @@ let answerMap = {};
 let currentPuzzleIndex = 0;
 let currentDifficulty = 'beginner';
 let currentPuzzleInDifficulty = 0;
-let retryCount = 0;
 
 // 翻訳データ
 const translations = {
