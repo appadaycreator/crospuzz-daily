@@ -381,13 +381,11 @@ function generatePuzzle(puzzle) {
     }
   }
   
-  // バランス統計を表示
-  const finalAcrossCount = placed.filter(p => p.dir === "across").length;
-  const finalDownCount = placed.filter(p => p.dir === "down").length;
-  const balanceRatio = Math.min(finalAcrossCount, finalDownCount) / Math.max(finalAcrossCount, finalDownCount);
+  // バランス統計を表示（既存の変数を利用）
+  const balanceRatio = Math.min(acrossCount, downCount) / Math.max(acrossCount, downCount);
   console.log(`\n📊 最終バランス統計:`);
-  console.log(`  ヨコのカギ: ${finalAcrossCount}個`);
-  console.log(`  タテのカギ: ${finalDownCount}個`);
+  console.log(`  ヨコのカギ: ${acrossCount}個`);
+  console.log(`  タテのカギ: ${downCount}個`);
   console.log(`  バランス比率: ${(balanceRatio * 100).toFixed(0)}% (100%が完璧なバランス)`);
 
   // 改良された番号付けロジック：実際に配置された単語のみに番号を付与
@@ -461,8 +459,9 @@ function generatePuzzle(puzzle) {
 
   console.log('最終結果:');
   console.log(`配置された単語数: ${placed.length}/${words.length}`);
-  const acrossCount = placed.filter(p => p.dir === "across").length;
-  const downCount = placed.filter(p => p.dir === "down").length;
+  // 既存の変数を再利用（重複宣言を避ける）
+  acrossCount = placed.filter(p => p.dir === "across").length;
+  downCount = placed.filter(p => p.dir === "down").length;
   console.log(`縦横の内訳: ヨコ${acrossCount}個, タテ${downCount}個`);
   console.log('配置された単語詳細:');
   placed.forEach((p, i) => {
