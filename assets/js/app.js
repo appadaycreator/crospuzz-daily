@@ -978,7 +978,10 @@ function selectDifficulty(difficulty) {
     
     // 最初のパズルを自動選択
     if (puzzles[difficulty] && puzzles[difficulty].length > 0) {
+        console.log(`${difficulty}の最初のパズルを選択: ${puzzles[difficulty][0].title}`);
         selectPuzzle(difficulty, 0);
+    } else {
+        console.error(`${difficulty}の問題データが存在しません`, puzzles);
     }
     
     // 選択した難易度を保存
@@ -1020,25 +1023,35 @@ function updateDifficultyButtons(selectedDifficulty) {
 
 // パズル選択リストを更新（指定した難易度のパズルのみ表示）
 function updatePuzzleSelect(difficulty) {
+    console.log(`updatePuzzleSelect呼び出し: difficulty=${difficulty}`);
     const select = document.getElementById('puzzleSelect');
-    if (!select) return;
+    if (!select) {
+        console.error('puzzleSelectエレメントが見つかりません');
+        return;
+    }
     
     select.innerHTML = '';
     
     if (puzzles[difficulty]) {
+        console.log(`${difficulty}の問題数: ${puzzles[difficulty].length}`);
         puzzles[difficulty].forEach((puzzle, index) => {
             const option = document.createElement('option');
             option.value = index;
             option.textContent = puzzle.title;
             select.appendChild(option);
+            console.log(`オプション追加: index=${index}, title=${puzzle.title}`);
         });
+    } else {
+        console.error(`${difficulty}の問題データが見つかりません:`, puzzles);
     }
     
     // 選択イベントリスナーを再設定
     select.onchange = function(e) {
         const index = parseInt(e.target.value);
+        console.log(`パズル選択変更: difficulty=${currentSelectedDifficulty}, index=${index}`);
         selectPuzzle(currentSelectedDifficulty, index);
     };
+    console.log(`updatePuzzleSelect完了: 現在のオプション数=${select.options.length}`);
 }
 
 // パズル選択の初期化（新しい実装）

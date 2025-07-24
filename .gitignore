@@ -9,6 +9,8 @@ package-lock.json
 # Test files
 test_*.html
 test_*.js
+debug_*.js
+simple_test.js
 capture_screen.sh
 
 # Temporary files
