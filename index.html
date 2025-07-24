@@ -220,6 +220,25 @@
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1" data-i18n="daily_puzzle">今日のパズル</h2>
                 <p class="text-sm text-gray-600 dark:text-gray-400" data-i18n="puzzle_date" id="puzzleDate">2024年1月15日</p>
                 
+                <!-- 難易度選択 -->
+                <div class="mt-4 mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3" data-i18n="difficulty_select">難易度を選択</label>
+                    <div class="flex flex-wrap justify-center gap-3 mb-4">
+                        <button id="difficultyBeginner" onclick="selectDifficulty('beginner')" class="difficulty-btn flex items-center px-4 py-2 rounded-lg border-2 transition-all duration-200 bg-green-50 border-green-200 text-green-800 hover:bg-green-100 dark:bg-green-900 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-800">
+                            <i class="fas fa-seedling mr-2"></i>
+                            <span data-i18n="beginner">初級</span>
+                        </button>
+                        <button id="difficultyIntermediate" onclick="selectDifficulty('intermediate')" class="difficulty-btn flex items-center px-4 py-2 rounded-lg border-2 transition-all duration-200 bg-gray-50 border-gray-200 text-gray-600 hover:bg-yellow-100 hover:border-yellow-200 hover:text-yellow-800 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-yellow-900 dark:hover:border-yellow-700 dark:hover:text-yellow-300">
+                            <i class="fas fa-mountain mr-2"></i>
+                            <span data-i18n="intermediate">中級</span>
+                        </button>
+                        <button id="difficultyAdvanced" onclick="selectDifficulty('advanced')" class="difficulty-btn flex items-center px-4 py-2 rounded-lg border-2 transition-all duration-200 bg-gray-50 border-gray-200 text-gray-600 hover:bg-red-100 hover:border-red-200 hover:text-red-800 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-red-900 dark:hover:border-red-700 dark:hover:text-red-300">
+                            <i class="fas fa-rocket mr-2"></i>
+                            <span data-i18n="advanced">上級</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- パズル選択 -->
                 <div class="mt-2 mb-2">
                     <label for="puzzleSelect" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="puzzle_select">パズル選択</label>
@@ -229,8 +248,8 @@
                 </div>
                 
                 <div class="mt-2 flex justify-center space-x-4">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                        <i class="fas fa-star mr-1"></i>
+                    <span id="currentDifficultyBadge" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                        <i class="fas fa-seedling mr-1"></i>
                         <span data-i18n="beginner">初級</span>
                     </span>
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">

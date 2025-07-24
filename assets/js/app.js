@@ -958,39 +958,93 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// パズル選択の初期化
-function initializePuzzleSelect() {
+// グローバル変数（現在の難易度）
+let currentSelectedDifficulty = 'beginner';
+
+// 難易度選択機能
+function selectDifficulty(difficulty) {
+    console.log(`難易度選択: ${difficulty}`);
+    
+    currentSelectedDifficulty = difficulty;
+    
+    // 難易度ボタンの状態を更新
+    updateDifficultyButtons(difficulty);
+    
+    // パズル選択リストを更新
+    updatePuzzleSelect(difficulty);
+    
+    // 難易度バッジを更新
+    updateDifficultyBadge(difficulty);
+    
+    // 最初のパズルを自動選択
+    if (puzzles[difficulty] && puzzles[difficulty].length > 0) {
+        selectPuzzle(difficulty, 0);
+    }
+    
+    // 選択した難易度を保存
+    saveSettings();
+}
+
+// 難易度ボタンの状態を更新
+function updateDifficultyButtons(selectedDifficulty) {
+    const buttons = {
+        'beginner': document.getElementById('difficultyBeginner'),
+        'intermediate': document.getElementById('difficultyIntermediate'),
+        'advanced': document.getElementById('difficultyAdvanced')
+    };
+    
+    const styles = {
+        'beginner': {
+            active: 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-300',
+            inactive: 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-green-100 hover:border-green-200 hover:text-green-800 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-green-900 dark:hover:border-green-700 dark:hover:text-green-300'
+        },
+        'intermediate': {
+            active: 'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-300',
+            inactive: 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-yellow-100 hover:border-yellow-200 hover:text-yellow-800 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-yellow-900 dark:hover:border-yellow-700 dark:hover:text-yellow-300'
+        },
+        'advanced': {
+            active: 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900 dark:border-red-700 dark:text-red-300',
+            inactive: 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-red-100 hover:border-red-200 hover:text-red-800 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-red-900 dark:hover:border-red-700 dark:hover:text-red-300'
+        }
+    };
+    
+    Object.keys(buttons).forEach(difficulty => {
+        const button = buttons[difficulty];
+        if (button) {
+            // 既存のクラスをリセット
+            button.className = 'difficulty-btn flex items-center px-4 py-2 rounded-lg border-2 transition-all duration-200 ' + 
+                              (difficulty === selectedDifficulty ? styles[difficulty].active : styles[difficulty].inactive);
+        }
+    });
+}
+
+// パズル選択リストを更新（指定した難易度のパズルのみ表示）
+function updatePuzzleSelect(difficulty) {
     const select = document.getElementById('puzzleSelect');
     if (!select) return;
     
     select.innerHTML = '';
     
-    // 難易度別のパズルを追加
-    const difficulties = [
-        { key: 'beginner', label: '初級' },
-        { key: 'intermediate', label: '中級' },
-        { key: 'advanced', label: '上級' }
-    ];
-    
-    difficulties.forEach(difficulty => {
-        const optgroup = document.createElement('optgroup');
-        optgroup.label = difficulty.label;
-        
-        puzzles[difficulty.key].forEach((puzzle, index) => {
+    if (puzzles[difficulty]) {
+        puzzles[difficulty].forEach((puzzle, index) => {
             const option = document.createElement('option');
-            option.value = `${difficulty.key}_${index}`;
+            option.value = index;
             option.textContent = puzzle.title;
-            optgroup.appendChild(option);
+            select.appendChild(option);
         });
-        
-        select.appendChild(optgroup);
-    });
+    }
     
-    select.addEventListener('change', function(e) {
-        const selectedValue = e.target.value;
-        const [difficulty, index] = selectedValue.split('_');
-        selectPuzzle(difficulty, parseInt(index));
-    });
+    // 選択イベントリスナーを再設定
+    select.onchange = function(e) {
+        const index = parseInt(e.target.value);
+        selectPuzzle(currentSelectedDifficulty, index);
+    };
+}
+
+// パズル選択の初期化（新しい実装）
+function initializePuzzleSelect() {
+    // 保存された難易度または初期難易度を設定
+    selectDifficulty(currentSelectedDifficulty);
 }
 
 // Load saved settings
@@ -1013,6 +1067,10 @@ function loadSettings() {
         }
     }
     
+    if (settings.selectedDifficulty) {
+        currentSelectedDifficulty = settings.selectedDifficulty;
+    }
+    
     updateTranslations();
     console.log('設定を読み込み:', settings);
 }
@@ -1022,7 +1080,8 @@ function saveSettings() {
     const settings = {
         language: currentLanguage,
         fontSize: currentFontSize,
-        darkMode: isDarkMode
+        darkMode: isDarkMode,
+        selectedDifficulty: currentSelectedDifficulty
     };
     localStorage.setItem('crospuzz_settings', JSON.stringify(settings));
     console.log('設定を保存:', settings);
@@ -1820,18 +1879,30 @@ function selectPuzzle(difficulty, index) {
 
 // 難易度バッジを更新する関数
 function updateDifficultyBadge(difficulty) {
-    const badge = document.querySelector('.inline-flex.items-center.px-3.py-1.rounded-full.text-sm.font-medium');
+    const badge = document.getElementById('currentDifficultyBadge');
     if (!badge) return;
     
     const difficultyLabels = {
-        'beginner': { text: '初級', bg: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' },
-        'intermediate': { text: '中級', bg: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' },
-        'advanced': { text: '上級', bg: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' }
+        'beginner': { 
+            text: '初級', 
+            bg: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+            icon: 'fas fa-seedling'
+        },
+        'intermediate': { 
+            text: '中級', 
+            bg: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+            icon: 'fas fa-mountain'
+        },
+        'advanced': { 
+            text: '上級', 
+            bg: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+            icon: 'fas fa-rocket'
+        }
     };
     
     const difficultyInfo = difficultyLabels[difficulty];
     if (difficultyInfo) {
         badge.className = `inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${difficultyInfo.bg}`;
-        badge.querySelector('span').textContent = difficultyInfo.text;
+        badge.innerHTML = `<i class="${difficultyInfo.icon} mr-1"></i><span data-i18n="${difficulty}">${difficultyInfo.text}</span>`;
     }
 } 
