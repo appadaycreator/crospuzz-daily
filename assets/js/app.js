@@ -318,34 +318,35 @@ function generatePuzzle(puzzle) {
     }
   }
 
-  // クロスワードビルダー.comのルールに従った番号付与
+  // 改良された番号付けロジック：実際に配置された単語のみに番号を付与
   let num = 1;
   const numbering = {};
   const across = [], down = [];
   
-  // ステップ①：語頭となるマス目すべてに〇印を付ける
-  const startPositions = [];
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      if (grid[r][c] !== "#") {
-        // 左側または上側が黒マスまたは境界外の場合、語頭
-        const isStart = (c === 0 || grid[r][c - 1] === "#") || 
-                       (r === 0 || grid[r - 1][c] === "#");
-        if (isStart) {
-          startPositions.push({ r, c });
-        }
-      }
-    }
-  }
-
-  // ステップ②：Z順で番号を付与
-  startPositions.sort((a, b) => {
+  console.log('番号付けロジック開始');
+  console.log('配置された単語:', placed.map(w => `"${w.answer}" at (${w.row},${w.col}) ${w.dir}`));
+  
+  // 配置された単語の開始位置を収集してソート
+  const wordStartPositions = placed.map(word => ({
+    r: word.row,
+    c: word.col,
+    word: word.answer,
+    dir: word.dir,
+    clue: word.clue
+  }));
+  
+  // Z順（左上から右下へ）でソート
+  wordStartPositions.sort((a, b) => {
     if (a.r !== b.r) return a.r - b.r;
     return a.c - b.c;
   });
-
-  for (const pos of startPositions) {
-    numbering[`${pos.r},${pos.c}`] = num;
+  
+  console.log('ソート後の単語位置:', wordStartPositions);
+  
+  // 実際に配置された単語の位置のみに番号を付与
+  for (const wordPos of wordStartPositions) {
+    numbering[`${wordPos.r},${wordPos.c}`] = num;
+    console.log(`番号付与: "${wordPos.word}" at (${wordPos.r},${wordPos.c}) -> 番号${num}`);
     num++;
   }
 
@@ -463,13 +464,21 @@ function generateSimpleFallbackPuzzle(puzzle) {
     }
   }
   
-  // 番号付けとヒント作成
+  // 番号付けとヒント作成（配置順にソート）
   const numbering = {};
   const across = [];
   const down = [];
   let num = 1;
   
-  for (const word of placed) {
+  // 配置された単語をZ順でソート
+  const sortedWords = [...placed].sort((a, b) => {
+    if (a.row !== b.row) return a.row - b.row;
+    return a.col - b.col;
+  });
+  
+  console.log('シンプルフォールバック - ソート後の単語:', sortedWords.map(w => `"${w.answer}" at (${w.row},${w.col}) ${w.dir}`));
+  
+  for (const word of sortedWords) {
     numbering[`${word.row},${word.col}`] = num;
     const clueData = {
       number: num,
@@ -479,6 +488,8 @@ function generateSimpleFallbackPuzzle(puzzle) {
       col: word.col,
       length: word.answer.length
     };
+    
+    console.log(`シンプルフォールバック - 番号付与: "${word.answer}" -> 番号${num}`);
     
     if (word.dir === "across") {
       across.push(clueData);
