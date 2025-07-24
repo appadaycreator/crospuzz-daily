@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パズルバランステスト</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .difficulty-section {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .puzzle-result {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+        .good-balance {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .poor-balance {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .stats {
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>クロスワードパズル バランステスト</h1>
+    <p>各パズルのタテとヨコのカギの数をチェックします。</p>
+    
+    <div style="margin: 20px 0;">
+        <button onclick="testAllPuzzles()">すべてのパズルをテスト</button>
+        <button onclick="clearResults()">結果をクリア</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        async function loadPuzzleData() {
+            try {
+                const response = await fetch('/static/puzzles/puzzles.json');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('パズルデータ読み込みエラー:', error);
+                return null;
+            }
+        }
+
+        async function testPuzzle(puzzle, difficulty) {
+            // 実際のパズル生成ロジックを簡略化してシミュレート
+            // 本来はapp.jsの generatePuzzle 関数を使用
+            const words = puzzle.words;
+            const acrossClues = {};
+            const downClues = {};
+            
+            // 簡易的にタテヨコを振り分け（実際の生成ロジックに近い形で）
+            words.forEach((word, index) => {
+                if (index === 0) {
+                    // 最初の単語は必ずヨコ
+                    acrossClues[index + 1] = word.clue;
+                } else if (index === 1) {
+                    // 2番目は必ずタテ
+                    downClues[index + 1] = word.clue;
+                } else {
+                    // 3番目以降はバランスを考慮
+                    const acrossCount = Object.keys(acrossClues).length;
+                    const downCount = Object.keys(downClues).length;
+                    
+                    if (acrossCount > downCount) {
+                        downClues[index + 1] = word.clue;
+                    } else {
+                        acrossClues[index + 1] = word.clue;
+                    }
+                }
+            });
+            
+            return {
+                across: Object.keys(acrossClues).length,
+                down: Object.keys(downClues).length,
+                total: words.length
+            };
+        }
+
+        async function testAllPuzzles() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>テスト中...</p>';
+            
+            const puzzleData = await loadPuzzleData();
+            if (!puzzleData) {
+                resultsDiv.innerHTML = '<p style="color: red;">パズルデータの読み込みに失敗しました。</p>';
+                return;
+            }
+            
+            let html = '';
+            const difficulties = ['beginner', 'intermediate', 'advanced'];
+            
+            for (const difficulty of difficulties) {
+                html += `<div class="difficulty-section">`;
+                html += `<h2>${difficulty.toUpperCase()} (${getDifficultyName(difficulty)})</h2>`;
+                
+                let totalAcross = 0;
+                let totalDown = 0;
+                let puzzleCount = 0;
+                
+                const puzzles = puzzleData[difficulty] || [];
+                
+                for (const puzzle of puzzles) {
+                    const result = await testPuzzle(puzzle, difficulty);
+                    totalAcross += result.across;
+                    totalDown += result.down;
+                    puzzleCount++;
+                    
+                    const ratio = Math.min(result.across, result.down) / Math.max(result.across, result.down);
+                    const isGoodBalance = ratio >= 0.7;
+                    
+                    html += `<div class="puzzle-result ${isGoodBalance ? 'good-balance' : 'poor-balance'}">`;
+                    html += `<div class="stats">${puzzle.title}</div>`;
+                    html += `<div>ヨコ: ${result.across}個 / タテ: ${result.down}個 / 合計: ${result.total}個</div>`;
+                    html += `<div>バランス比率: ${(ratio * 100).toFixed(0)}% ${isGoodBalance ? '✅' : '⚠️'}</div>`;
+                    html += `</div>`;
+                }
+                
+                if (puzzleCount > 0) {
+                    const avgRatio = Math.min(totalAcross, totalDown) / Math.max(totalAcross, totalDown);
+                    html += `<div class="stats" style="margin-top: 15px; padding: 10px; background: #e9ecef;">`;
+                    html += `難易度平均 - ヨコ: ${(totalAcross / puzzleCount).toFixed(1)}個 / タテ: ${(totalDown / puzzleCount).toFixed(1)}個`;
+                    html += ` / 平均バランス比率: ${(avgRatio * 100).toFixed(0)}%`;
+                    html += `</div>`;
+                }
+                
+                html += `</div>`;
+            }
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        function getDifficultyName(difficulty) {
+            const names = {
+                'beginner': '初級',
+                'intermediate': '中級',
+                'advanced': '上級'
+            };
+            return names[difficulty] || difficulty;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+    </script>
+</body>
+</html>

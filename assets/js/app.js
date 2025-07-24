@@ -1,5 +1,5 @@
 // CrosPuzz - Daily Crossword Puzzle Application
-// Version: 1.0.6
+// Version: 1.0.7
 // Author: AppAdayCreator
 
 // グローバル変数
@@ -269,6 +269,10 @@ function generatePuzzle(puzzle) {
   // 残りの単語を交差のみで配置（最大試行時間を設定）
   const maxTime = Date.now() + 5000; // 5秒でタイムアウト
   
+  // 現在のタテヨコのバランスを追跡
+  let acrossCount = placed.filter(p => p.dir === "across").length;
+  let downCount = placed.filter(p => p.dir === "down").length;
+  
   for (let wi = 2; wi < optimizedWords.length; wi++) {
     // タイムアウトチェック
     if (Date.now() > maxTime) {
@@ -278,10 +282,12 @@ function generatePuzzle(puzzle) {
     
     const w = optimizedWords[wi].answer;
     console.log(`\n=== 単語 "${w}" の交差配置を試行中... ===`);
-    console.log(`現在配置済み: ${placed.length}個`);
+    console.log(`現在配置済み: ${placed.length}個 (ヨコ: ${acrossCount}, タテ: ${downCount})`);
     placed.forEach((p, i) => console.log(`  ${i+1}: "${p.answer}" at (${p.row},${p.col}) ${p.dir}`));
     
     let placedWord = false;
+    let bestPlacement = null;
+    let allPlacements = [];
 
     // 既に配置された単語との交差を試行
     for (const existingWord of placed) {
@@ -291,7 +297,7 @@ function generatePuzzle(puzzle) {
         for (let wiChar = 0; wiChar < w.length; wiChar++) {
           if (w[wiChar] !== pChar) continue;
 
-          // 交差方向を決定
+          // 交差方向を決定（バランスを考慮）
           let r, c, dir;
           if (existingWord.dir === "across") {
             dir = "down";
@@ -316,24 +322,53 @@ function generatePuzzle(puzzle) {
           // 配置可能かチェック
           console.log(`canPlace チェック: "${w}" at (${r},${c}) ${dir}`);
           if (canPlace(grid, w, r, c, dir)) {
-            console.log(`✅ 配置成功: "${w}" at (${r},${c}) ${dir}`);
-            placeWord(grid, w, r, c, dir);
-            placed.push({ ...optimizedWords[wi], row: r, col: c, dir, answer: w });
-            placedWord = true;
-            break;
+            const placement = {
+              word: optimizedWords[wi],
+              row: r,
+              col: c,
+              dir: dir,
+              answer: w
+            };
+            allPlacements.push(placement);
+            console.log(`✅ 配置可能: "${w}" at (${r},${c}) ${dir}`);
           } else {
-            console.log(`❌ 配置失敗: "${w}" at (${r},${c}) ${dir}`);
+            console.log(`❌ 配置不可: "${w}" at (${r},${c}) ${dir}`);
           }
         }
-        if (placedWord) break;
       }
-      if (placedWord) break;
+    }
+
+    // バランスを考慮して最適な配置を選択
+    if (allPlacements.length > 0) {
+      // タテヨコのバランスが取れるように選択
+      if (acrossCount > downCount) {
+        // ヨコが多い場合はタテを優先
+        bestPlacement = allPlacements.find(p => p.dir === "down") || allPlacements[0];
+      } else if (downCount > acrossCount) {
+        // タテが多い場合はヨコを優先
+        bestPlacement = allPlacements.find(p => p.dir === "across") || allPlacements[0];
+      } else {
+        // 同数の場合は最初の候補を選択
+        bestPlacement = allPlacements[0];
+      }
+      
+      console.log(`最適な配置を選択: "${bestPlacement.answer}" at (${bestPlacement.row},${bestPlacement.col}) ${bestPlacement.dir}`);
+      placeWord(grid, bestPlacement.answer, bestPlacement.row, bestPlacement.col, bestPlacement.dir);
+      placed.push(bestPlacement);
+      
+      // カウントを更新
+      if (bestPlacement.dir === "across") {
+        acrossCount++;
+      } else {
+        downCount++;
+      }
+      
+      placedWord = true;
     }
 
     // 交差できなかった場合は失敗
     if (!placedWord) {
       console.log(`交差配置失敗: "${w}" - 配置できた単語のみで続行`);
-      // 配置できた単語のみで続行（再試行しない）
       console.log(`配置できた単語のみで続行: ${placed.length}個`);
       break;
     }
@@ -345,6 +380,15 @@ function generatePuzzle(puzzle) {
       if (grid[r][c] === "") grid[r][c] = "#";
     }
   }
+  
+  // バランス統計を表示
+  const finalAcrossCount = placed.filter(p => p.dir === "across").length;
+  const finalDownCount = placed.filter(p => p.dir === "down").length;
+  const balanceRatio = Math.min(finalAcrossCount, finalDownCount) / Math.max(finalAcrossCount, finalDownCount);
+  console.log(`\n📊 最終バランス統計:`);
+  console.log(`  ヨコのカギ: ${finalAcrossCount}個`);
+  console.log(`  タテのカギ: ${finalDownCount}個`);
+  console.log(`  バランス比率: ${(balanceRatio * 100).toFixed(0)}% (100%が完璧なバランス)`);
 
   // 改良された番号付けロジック：実際に配置された単語のみに番号を付与
   let num = 1;
