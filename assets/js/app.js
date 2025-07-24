@@ -281,9 +281,19 @@ function generatePuzzle(puzzle) {
   console.log(`1語目配置: "${first}" at (${midRow},${startCol}) across`);
   placeWord(grid, first, midRow, startCol, "across");
   placed.push({ ...optimizedWords[0], row: midRow, col: startCol, dir: "across" });
+
+  // 2語目を中央縦配置（交差を確実にするため）
+  if (optimizedWords.length > 1) {
+    const second = optimizedWords[1].answer;
+    const secondStartRow = Math.floor((size - second.length) / 2);
+    const secondCol = Math.floor(size / 2);
+    console.log(`2語目配置: "${second}" at (${secondStartRow},${secondCol}) down`);
+    placeWord(grid, second, secondStartRow, secondCol, "down");
+    placed.push({ ...optimizedWords[1], row: secondStartRow, col: secondCol, dir: "down" });
+  }
   
       // 残りの単語を交差のみで配置
-    for (let wi = 1; wi < optimizedWords.length; wi++) {
+    for (let wi = 2; wi < optimizedWords.length; wi++) {
       const w = optimizedWords[wi].answer;
       console.log(`\n=== 単語 "${w}" の交差配置を試行中... ===`);
       console.log(`現在配置済み: ${placed.length}個`);
@@ -665,17 +675,39 @@ function generatePuzzleWithFallback(puzzle) {
 function optimizeWordOrder(words) {
   const optimized = [];
   const used = new Set();
-  
+
   // 最初の単語（最長の単語）
   optimized.push(words[0]);
   used.add(words[0].answer);
-  
-  // 残りの単語を交差可能性でソート
+
+  // 2番目の単語は、1番目との交差可能性が最も高いものを選択
   const remaining = words.slice(1);
+  let bestSecondWord = null;
+  let bestScore = -1;
+
+  for (const word of remaining) {
+    let score = 0;
+    for (const char of word.answer) {
+      if (words[0].answer.includes(char)) {
+        score++;
+      }
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      bestSecondWord = word;
+    }
+  }
+
+  if (bestSecondWord) {
+    optimized.push(bestSecondWord);
+    remaining.splice(remaining.indexOf(bestSecondWord), 1);
+  }
+
+  // 残りの単語を交差可能性でソート
   while (remaining.length > 0) {
     let bestWord = null;
     let bestScore = -1;
-    
+
     for (const word of remaining) {
       let score = 0;
       for (const placedWord of optimized) {
@@ -686,13 +718,13 @@ function optimizeWordOrder(words) {
           }
         }
       }
-      
+
       if (score > bestScore) {
         bestScore = score;
         bestWord = word;
       }
     }
-    
+
     if (bestWord) {
       optimized.push(bestWord);
       remaining.splice(remaining.indexOf(bestWord), 1);
@@ -702,7 +734,7 @@ function optimizeWordOrder(words) {
       break;
     }
   }
-  
+
   return optimized;
 }
 
