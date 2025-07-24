@@ -1,5 +1,5 @@
 // CrosPuzz - Daily Crossword Puzzle Application
-// Version: 1.0.0
+// Version: 1.0.6
 // Author: AppAdayCreator
 
 // グローバル変数
@@ -12,46 +12,74 @@ let puzzles = {};
 // JSONファイルからパズルデータを読み込む
 async function loadPuzzleData() {
   try {
-    const response = await fetch('/static/puzzles/puzzles.json');
+    // GitHub Pages対応: 本番環境では/crospuzz-daily/のパスが必要
+    let jsonUrl = '/static/puzzles/puzzles.json';
+    
+    // GitHub Pagesかどうかを判定
+    if (window.location.hostname.includes('github.io')) {
+      jsonUrl = '/crospuzz-daily/static/puzzles/puzzles.json';
+    }
+    
+    console.log('パズルデータを読み込み中:', jsonUrl);
+    const response = await fetch(jsonUrl);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    puzzles = await response.json();
-    console.log('パズルデータ読み込み完了:', Object.keys(puzzles).map(d => `${d}: ${puzzles[d].length}個`));
+    const data = await response.json();
+    
+    // データ検証
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid puzzle data format');
+    }
+    
+    // 各難易度が存在することを確認
+    if (!data.beginner || !data.intermediate || !data.advanced) {
+      console.error('パズルデータ構造が不正です:', data);
+      throw new Error('Invalid puzzle data structure');
+    }
+    
+    puzzles = data;
+    console.log('パズルデータ読み込み完了:', Object.keys(puzzles).map(d => `${d}: ${puzzles[d] ? puzzles[d].length : 0}個`));
+    console.log('データ詳細:', {
+      beginner: puzzles.beginner?.length || 0,
+      intermediate: puzzles.intermediate?.length || 0,
+      advanced: puzzles.advanced?.length || 0
+    });
     
     // パズルデータ読み込み後に初期化を実行
     initializePuzzleSelect();
     
     // デフォルトで初級の最初のパズルを選択
-    selectPuzzle('beginner', 0);
+    if (puzzles.beginner && puzzles.beginner.length > 0) {
+      selectPuzzle('beginner', 0);
+    }
     initializeGame();
   } catch (error) {
     console.error('パズルデータの読み込みに失敗しました:', error);
-    // フォールバック用のデフォルトデータ
+    console.error('エラー詳細:', error.message);
+    console.error('エラースタック:', error.stack);
+    
+    // エラー時は空のデータ構造を設定（フォールバックデータは使用しない）
     puzzles = {
-      beginner: [
-        {
-          title: "動物の名前",
-          words: [
-            { answer: "ねこ", clue: "気まぐれなペット" },
-            { answer: "いぬ", clue: "忠実なペット" },
-            { answer: "うさぎ", clue: "耳が長い動物" },
-            { answer: "とり", clue: "空を飛ぶ動物" },
-            { answer: "さかな", clue: "海に住む動物" },
-            { answer: "くま", clue: "冬眠する動物" },
-            { answer: "きつね", clue: "きつね" },
-            { answer: "たぬき", clue: "たぬき" }
-          ]
-        }
-      ],
+      beginner: [],
       intermediate: [],
       advanced: []
     };
-    console.log('フォールバックデータを使用');
-    initializePuzzleSelect();
     
-    // デフォルトで初級の最初のパズルを選択
-    selectPuzzle('beginner', 0);
+    // エラーメッセージを表示
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4';
+    errorDiv.innerHTML = `
+      <strong class="font-bold">エラー: </strong>
+      <span class="block sm:inline">パズルデータの読み込みに失敗しました。ページをリロードしてください。</span>
+      <span class="block text-xs mt-2">詳細: ${error.message}</span>
+    `;
+    const mainContent = document.querySelector('.bg-white.rounded-lg.shadow-lg');
+    if (mainContent) {
+      mainContent.insertBefore(errorDiv, mainContent.firstChild);
+    }
+    
+    initializePuzzleSelect();
     initializeGame();
   }
 }
