@@ -1,5 +1,5 @@
 // CrosPuzz - Daily Crossword Puzzle Application
-// Version: 1.0.8
+// Version: 1.0.9
 // Author: AppAdayCreator
 
 // グローバル変数
@@ -214,10 +214,12 @@ function generatePuzzle(puzzle) {
   // 単語を長さでソート（長い単語から配置）
   const words = [...wordsToUse].sort((a, b) => b.answer.length - a.answer.length);
   console.log('ソートされた単語（長い順）:', words);
+  console.log('各単語のclue確認:', words.map(w => ({ answer: w.answer, clue: w.clue })));
   
   // 交差可能性の高い単語を優先
   const optimizedWords = optimizeWordOrder(words);
   console.log('最適化された単語順序:', optimizedWords.map(w => w.answer));
+  console.log('最適化後のclue確認:', optimizedWords.map(w => ({ answer: w.answer, clue: w.clue })));
 
   // 完全なクロスワード生成
   const placed = [];
@@ -323,7 +325,7 @@ function generatePuzzle(puzzle) {
           console.log(`canPlace チェック: "${w}" at (${r},${c}) ${dir}`);
           if (canPlace(grid, w, r, c, dir)) {
             const placement = {
-              word: optimizedWords[wi],
+              ...optimizedWords[wi],
               row: r,
               col: c,
               dir: dir,
@@ -426,10 +428,16 @@ function generatePuzzle(puzzle) {
   
   for (const word of placed) {
     const number = numbering[`${word.row},${word.col}`];
-    console.log(`単語 "${word.answer}" の番号: ${number}, 方向: ${word.dir}`);
+    console.log(`単語 "${word.answer}" の番号: ${number}, 方向: ${word.dir}, clue: "${word.clue}"`);
     
     if (!number) {
       console.warn(`警告: 単語 "${word.answer}" at (${word.row},${word.col}) に番号が付与されていません`);
+      continue;
+    }
+    
+    if (!word.clue) {
+      console.error(`エラー: 単語 "${word.answer}" にclueプロパティがありません:`, word);
+      console.error('placed配列の構造:', placed);
       continue;
     }
     
