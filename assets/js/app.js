@@ -1,5 +1,5 @@
 // CrosPuzz - Daily Crossword Puzzle Application
-// Version: 1.0.9
+// Version: 1.1.0
 // Author: AppAdayCreator
 
 // グローバル変数
@@ -33,7 +33,7 @@ async function loadPuzzleData() {
     }
     
     // 各難易度が存在することを確認
-    if (!data.beginner || !data.intermediate || !data.advanced) {
+    if (!data.beginner || !data.intermediate || !data.advanced || !data.expert) {
       console.error('パズルデータ構造が不正です:', data);
       throw new Error('Invalid puzzle data structure');
     }
@@ -43,7 +43,8 @@ async function loadPuzzleData() {
     console.log('データ詳細:', {
       beginner: puzzles.beginner?.length || 0,
       intermediate: puzzles.intermediate?.length || 0,
-      advanced: puzzles.advanced?.length || 0
+      advanced: puzzles.advanced?.length || 0,
+      expert: puzzles.expert?.length || 0
     });
     
     // パズルデータ読み込み後に初期化を実行
@@ -63,7 +64,8 @@ async function loadPuzzleData() {
     puzzles = {
       beginner: [],
       intermediate: [],
-      advanced: []
+      advanced: [],
+      expert: []
     };
     
     // エラーメッセージを表示
@@ -1075,7 +1077,8 @@ function updateDifficultyButtons(selectedDifficulty) {
     const buttons = {
         'beginner': document.getElementById('difficultyBeginner'),
         'intermediate': document.getElementById('difficultyIntermediate'),
-        'advanced': document.getElementById('difficultyAdvanced')
+        'advanced': document.getElementById('difficultyAdvanced'),
+        'expert': document.getElementById('difficultyExpert')
     };
     
     const styles = {
@@ -1090,6 +1093,10 @@ function updateDifficultyButtons(selectedDifficulty) {
         'advanced': {
             active: 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900 dark:border-red-700 dark:text-red-300',
             inactive: 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-red-100 hover:border-red-200 hover:text-red-800 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-red-900 dark:hover:border-red-700 dark:hover:text-red-300'
+        },
+        'expert': {
+            active: 'bg-purple-50 border-purple-200 text-purple-800 dark:bg-purple-900 dark:border-purple-700 dark:text-purple-300',
+            inactive: 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-purple-100 hover:border-purple-200 hover:text-purple-800 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-purple-900 dark:hover:border-purple-700 dark:hover:text-purple-300'
         }
     };
     
@@ -2004,6 +2011,11 @@ function updateDifficultyBadge(difficulty) {
             text: '上級', 
             bg: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
             icon: 'fas fa-rocket'
+        },
+        'expert': { 
+            text: '超上級', 
+            bg: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+            icon: 'fas fa-crown'
         }
     };
     
