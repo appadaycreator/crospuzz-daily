@@ -49,9 +49,27 @@ async function loadPuzzleData() {
     
     // パズルデータ読み込み後に初期化を実行
     initializePuzzleSelect();
-    
-    // デフォルトで初級の最初のパズルを選択
-    if (puzzles.beginner && puzzles.beginner.length > 0) {
+
+    // 日付ベースで今日のパズルを選択（毎日異なる問題を出題）
+    const today = new Date();
+    const startOfYear = new Date(today.getFullYear(), 0, 0);
+    const dayOfYear = Math.floor((today - startOfYear) / 86400000);
+    const difficulties = ['beginner', 'intermediate', 'advanced', 'expert'];
+    const defaultDiff = difficulties[dayOfYear % difficulties.length];
+    const puzzleCount = (puzzles[defaultDiff] || puzzles.beginner || []).length;
+    const todayIndex = dayOfYear % Math.max(puzzleCount, 1);
+    const selectedDiff = (puzzles[defaultDiff] || []).length > 0 ? defaultDiff : 'beginner';
+
+    // 日付表示を更新
+    const dateEl = document.getElementById('puzzleDate');
+    if (dateEl) {
+      const fmt = today.toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric' });
+      dateEl.textContent = fmt;
+    }
+
+    if (puzzles[selectedDiff] && puzzles[selectedDiff].length > 0) {
+      selectPuzzle(selectedDiff, todayIndex);
+    } else if (puzzles.beginner && puzzles.beginner.length > 0) {
       selectPuzzle('beginner', 0);
     }
     initializeGame();
