@@ -1,7 +1,7 @@
 // CrosPuzz Service Worker
 // Version: 1.0.6
 
-const CACHE_NAME = 'crospuzz-v1.0.6';
+const CACHE_NAME = 'crospuzz-v1.0.7';
 const urlsToCache = [
     '/',
     '/index.html',
