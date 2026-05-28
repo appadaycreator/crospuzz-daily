@@ -14,11 +14,9 @@ const urlsToCache = [
 
 // Install event
 self.addEventListener('install', event => {
-    console.log('Service Worker installing...');
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
-                console.log('Opened cache');
                 return cache.addAll(urlsToCache);
             })
     );
@@ -59,13 +57,11 @@ self.addEventListener('fetch', event => {
 
 // Activate event
 self.addEventListener('activate', event => {
-    console.log('Service Worker activating...');
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cacheName => {
                     if (cacheName !== CACHE_NAME) {
-                        console.log('Deleting old cache:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
@@ -77,7 +73,6 @@ self.addEventListener('activate', event => {
 // Background sync for offline functionality
 self.addEventListener('sync', event => {
     if (event.tag === 'background-sync') {
-        console.log('Background sync triggered');
         event.waitUntil(doBackgroundSync());
     }
 });
@@ -85,14 +80,11 @@ self.addEventListener('sync', event => {
 // Background sync function
 function doBackgroundSync() {
     // Implement background sync logic here
-    console.log('Performing background sync...');
     return Promise.resolve();
 }
 
 // Push notification handling
 self.addEventListener('push', event => {
-    console.log('Push notification received');
-    
     const options = {
         body: '新しいクロスワードパズルが利用可能です！',
         icon: '/assets/images/icon-192x192.png',
@@ -123,8 +115,6 @@ self.addEventListener('push', event => {
 
 // Notification click handling
 self.addEventListener('notificationclick', event => {
-    console.log('Notification clicked');
-    
     event.notification.close();
     
     if (event.action === 'explore') {
@@ -134,4 +124,3 @@ self.addEventListener('notificationclick', event => {
     }
 });
 
-console.log('Service Worker loaded successfully'); 
