@@ -664,8 +664,7 @@ button, .btn, .btn-primary, .option-btn, [role="button"] { min-height: 48px; min
 }
 </style>
     <script>
-    window.onerror=function(m,s,l){try{console.error("[cp]",m,s?s+":"+l:"");}catch(e){}return false;};
-    window.addEventListener("unhandledrejection",function(e){try{console.error("[cp Promise]",e.reason);}catch(e){}});
+        window.addEventListener("unhandledrejection",function(e){try{console.error("[cp Promise]",e.reason);}catch(e){}});
     window.cpSafeGet=function(k,d){try{var v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch(e){return d;}};
     window.cpSafeSet=function(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}};
     window.cpSafeRemove=function(k){try{localStorage.removeItem(k);return true;}catch(e){return false;}};
