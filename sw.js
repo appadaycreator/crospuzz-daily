@@ -1,7 +1,7 @@
 // CrosPuzz Service Worker
 // Version: 1.0.6
 
-const CACHE_NAME = 'crospuzz-v1.0.7';
+const CACHE_NAME = 'crospuzz-v1.0.8';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -9,7 +9,6 @@ const urlsToCache = [
     '/assets/js/app.js',
     '/static/puzzles/puzzles.json',
     'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
-    'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css',
     'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Inter:wght@300;400;500;700&display=swap'
 ];
 

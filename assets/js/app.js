@@ -2015,32 +2015,32 @@ function updateDifficultyBadge(difficulty) {
     if (!badge) return;
     
     const difficultyLabels = {
-        'beginner': { 
-            text: '初級', 
+        'beginner': {
+            text: '初級',
             bg: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-            icon: 'fas fa-seedling'
+            icon: '🌱'
         },
-        'intermediate': { 
-            text: '中級', 
+        'intermediate': {
+            text: '中級',
             bg: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-            icon: 'fas fa-mountain'
+            icon: '⛰'
         },
-        'advanced': { 
-            text: '上級', 
+        'advanced': {
+            text: '上級',
             bg: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-            icon: 'fas fa-rocket'
+            icon: '🚀'
         },
-        'expert': { 
-            text: '超上級', 
+        'expert': {
+            text: '超上級',
             bg: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-            icon: 'fas fa-crown'
+            icon: '👑'
         }
     };
-    
+
     const difficultyInfo = difficultyLabels[difficulty];
     if (difficultyInfo) {
         badge.className = `inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${difficultyInfo.bg}`;
-        badge.innerHTML = `<i class="${difficultyInfo.icon} mr-1"></i><span data-i18n="${difficulty}">${difficultyInfo.text}</span>`;
+        badge.innerHTML = `<span aria-hidden="true" class="mr-1">${difficultyInfo.icon}</span><span data-i18n="${difficulty}">${difficultyInfo.text}</span>`;
     }
 }
 
