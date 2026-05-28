@@ -4,7 +4,7 @@
   "description": "毎日新しいクロスワードパズルが楽しめる無料脳トレゲーム。日本語・横並びクロスワードで語彙力・知識力をアップ。",
   "start_url": "/crospuzz-daily/",
   "display": "standalone",
-  "background_color": "#f8faf9",
+  "background_color": "#ffffff",
   "theme_color": "#7c3aed",
   "lang": "ja",
   "icons": [
