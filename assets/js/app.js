@@ -6,7 +6,6 @@
 let retryCount = 0;
 
 // パズルデータ（難易度別）
-console.log('パズルデータ読み込み開始');
 let puzzles = {};
 
 // JSONファイルからパズルデータを読み込む
@@ -20,7 +19,6 @@ async function loadPuzzleData() {
       jsonUrl = '/crospuzz-daily/static/puzzles/puzzles.json';
     }
     
-    console.log('パズルデータを読み込み中:', jsonUrl);
     const response = await fetch(jsonUrl);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -39,13 +37,6 @@ async function loadPuzzleData() {
     }
     
     puzzles = data;
-    console.log('パズルデータ読み込み完了:', Object.keys(puzzles).map(d => `${d}: ${puzzles[d] ? puzzles[d].length : 0}個`));
-    console.log('データ詳細:', {
-      beginner: puzzles.beginner?.length || 0,
-      intermediate: puzzles.intermediate?.length || 0,
-      advanced: puzzles.advanced?.length || 0,
-      expert: puzzles.expert?.length || 0
-    });
     
     // パズルデータ読み込み後に初期化を実行
     initializePuzzleSelect();
@@ -117,87 +108,71 @@ function canPlace(grid, word, r, c, dir) {
 
   if (dir === "across") {
     if (c + word.length > size) {
-      console.log(`  ❌ 境界外: c=${c}, word.length=${word.length}, size=${size}`);
       return false;
     }
 
     // クロスワードルール: 単語の前後に文字がないかチェック
     if (c > 0 && grid[r][c - 1] !== "" && grid[r][c - 1] !== "#") {
-      console.log(`  ❌ 前の文字が存在: grid[${r}][${c-1}] = "${grid[r][c - 1]}"`);
       return false;
     }
     if (c + word.length < size && grid[r][c + word.length] !== "" && grid[r][c + word.length] !== "#") {
-      console.log(`  ❌ 後の文字が存在: grid[${r}][${c + word.length}] = "${grid[r][c + word.length]}"`);
       return false;
     }
 
     for (let i = 0; i < word.length; i++) {
       const cell = grid[r][c + i];
       if (cell === "#") {
-        console.log(`  ❌ 黒マス: grid[${r}][${c+i}] = "#"`);
         return false;
       }
       
       // 既存の文字がある場合は一致する必要がある
       if (cell && cell !== word[i]) {
-        console.log(`  ❌ 文字不一致: grid[${r}][${c+i}] = "${cell}", word[${i}] = "${word[i]}"`);
         return false;
       }
 
       // 交差点のチェック（より柔軟に）
       if (r > 0 && grid[r - 1][c + i] !== "" && grid[r - 1][c + i] !== "#") {
         // 上側に文字がある場合、交差として許可
-        console.log(`  ℹ️ 上側交差: grid[${r-1}][${c+i}] = "${grid[r - 1][c + i]}"`);
       }
       if (r < size - 1 && grid[r + 1][c + i] !== "" && grid[r + 1][c + i] !== "#") {
         // 下側に文字がある場合、交差として許可
-        console.log(`  ℹ️ 下側交差: grid[${r+1}][${c+i}] = "${grid[r + 1][c + i]}"`);
       }
     }
-    console.log(`  ✅ across配置可能: "${word}" at (${r},${c})`);
     return true;
   }
 
   // down
   if (r + word.length > size) {
-    console.log(`  ❌ 境界外: r=${r}, word.length=${word.length}, size=${size}`);
     return false;
   }
 
   // クロスワードルール: 単語の前後に文字がないかチェック
   if (r > 0 && grid[r - 1][c] !== "" && grid[r - 1][c] !== "#") {
-    console.log(`  ❌ 前の文字が存在: grid[${r-1}][${c}] = "${grid[r - 1][c]}"`);
     return false;
   }
   if (r + word.length < size && grid[r + word.length][c] !== "" && grid[r + word.length][c] !== "#") {
-    console.log(`  ❌ 後の文字が存在: grid[${r + word.length}][${c}] = "${grid[r + word.length][c]}"`);
     return false;
   }
 
   for (let i = 0; i < word.length; i++) {
     const cell = grid[r + i][c];
     if (cell === "#") {
-      console.log(`  ❌ 黒マス: grid[${r+i}][${c}] = "#"`);
       return false;
     }
     
     // 既存の文字がある場合は一致する必要がある
     if (cell && cell !== word[i]) {
-      console.log(`  ❌ 文字不一致: grid[${r+i}][${c}] = "${cell}", word[${i}] = "${word[i]}"`);
       return false;
     }
 
     // 交差点のチェック（より柔軟に）
     if (c > 0 && grid[r + i][c - 1] !== "" && grid[r + i][c - 1] !== "#") {
       // 左側に文字がある場合、交差として許可
-      console.log(`  ℹ️ 左側交差: grid[${r+i}][${c-1}] = "${grid[r + i][c - 1]}"`);
     }
     if (c < size - 1 && grid[r + i][c + 1] !== "" && grid[r + i][c + 1] !== "#") {
       // 右側に文字がある場合、交差として許可
-      console.log(`  ℹ️ 右側交差: grid[${r+i}][${c+1}] = "${grid[r + i][c + 1]}"`);
     }
   }
-  console.log(`  ✅ down配置可能: "${word}" at (${r},${c})`);
   return true;
 }
 
@@ -210,14 +185,12 @@ function placeWord(grid, word, r, c, dir) {
 }
 
 function generatePuzzle(puzzle) {
-  console.log('generatePuzzle開始:', puzzle);
   
   // リトライカウントをリセット
   generateRetryCount = 0;
   
   // 単語数を制限（最大8個まで）
   let wordsToUse = puzzle.words.slice(0, 8);
-  console.log(`使用する単語数: ${wordsToUse.length}個（元の単語数: ${puzzle.words.length}個）`);
   
   const longest = Math.max(...wordsToUse.map(w => w.answer.length));
   let size = Math.max(9, longest + 2); // グリッドサイズを小さく調整
@@ -228,18 +201,13 @@ function generatePuzzle(puzzle) {
     size = Math.max(size, 11);
   }
   
-  console.log(`グリッドサイズ: ${size}x${size}, 単語数: ${wordCount}`);
   let grid = createEmptyGrid(size);
 
   // 単語を長さでソート（長い単語から配置）
   const words = [...wordsToUse].sort((a, b) => b.answer.length - a.answer.length);
-  console.log('ソートされた単語（長い順）:', words);
-  console.log('各単語のclue確認:', words.map(w => ({ answer: w.answer, clue: w.clue })));
   
   // 交差可能性の高い単語を優先
   const optimizedWords = optimizeWordOrder(words);
-  console.log('最適化された単語順序:', optimizedWords.map(w => w.answer));
-  console.log('最適化後のclue確認:', optimizedWords.map(w => ({ answer: w.answer, clue: w.clue })));
 
   // 完全なクロスワード生成
   const placed = [];
@@ -248,7 +216,6 @@ function generatePuzzle(puzzle) {
   const first = optimizedWords[0].answer;
   const startCol = Math.floor((size - first.length) / 2);
   const midRow = Math.floor(size / 2);
-  console.log(`1語目配置: "${first}" at (${midRow},${startCol}) across`);
   placeWord(grid, first, midRow, startCol, "across");
   placed.push({ ...optimizedWords[0], row: midRow, col: startCol, dir: "across" });
 
@@ -267,7 +234,6 @@ function generatePuzzle(puzzle) {
           
           // 境界チェック
           if (secondRow >= 0 && secondRow + second.length <= size) {
-            console.log(`2語目配置: "${second}" の "${second[j]}" と "${first}" の "${first[i]}" で交差 at (${secondRow},${secondCol}) down`);
             placeWord(grid, second, secondRow, secondCol, "down");
             placed.push({ ...optimizedWords[1], row: secondRow, col: secondCol, dir: "down" });
             foundIntersection = true;
@@ -282,7 +248,6 @@ function generatePuzzle(puzzle) {
     if (!foundIntersection) {
       const secondRow = Math.floor((size - second.length) / 2);
       const secondCol = Math.floor(size / 2);
-      console.log(`2語目独立配置: "${second}" at (${secondRow},${secondCol}) down`);
       placeWord(grid, second, secondRow, secondCol, "down");
       placed.push({ ...optimizedWords[1], row: secondRow, col: secondCol, dir: "down" });
     }
@@ -298,14 +263,11 @@ function generatePuzzle(puzzle) {
   for (let wi = 2; wi < optimizedWords.length; wi++) {
     // タイムアウトチェック
     if (Date.now() > maxTime) {
-      console.log('⏰ パズル生成タイムアウト - 配置済み単語で完了');
       break;
     }
     
     const w = optimizedWords[wi].answer;
-    console.log(`\n=== 単語 "${w}" の交差配置を試行中... ===`);
-    console.log(`現在配置済み: ${placed.length}個 (ヨコ: ${acrossCount}, タテ: ${downCount})`);
-    placed.forEach((p, i) => console.log(`  ${i+1}: "${p.answer}" at (${p.row},${p.col}) ${p.dir}`));
+    
     
     let placedWord = false;
     let bestPlacement = null;
@@ -313,7 +275,6 @@ function generatePuzzle(puzzle) {
 
     // 既に配置された単語との交差を試行
     for (const existingWord of placed) {
-      console.log(`\n--- "${existingWord.answer}" との交差を試行 ---`);
       for (let pi = 0; pi < existingWord.answer.length; pi++) {
         const pChar = existingWord.answer[pi];
         for (let wiChar = 0; wiChar < w.length; wiChar++) {
@@ -331,18 +292,15 @@ function generatePuzzle(puzzle) {
             c = existingWord.col - wiChar;
           }
 
-          console.log(`交差試行: "${w}" の "${w[wiChar]}" と "${existingWord.answer}" の "${pChar}" at (${r},${c}) ${dir}`);
 
           // 境界チェック
           if (r < 0 || c < 0 ||
               (dir === "across" && c + w.length > size) ||
               (dir === "down" && r + w.length > size)) {
-            console.log(`境界外: (${r},${c}) - スキップ`);
             continue;
           }
 
           // 配置可能かチェック
-          console.log(`canPlace チェック: "${w}" at (${r},${c}) ${dir}`);
           if (canPlace(grid, w, r, c, dir)) {
             const placement = {
               ...optimizedWords[wi],
@@ -352,9 +310,7 @@ function generatePuzzle(puzzle) {
               answer: w
             };
             allPlacements.push(placement);
-            console.log(`✅ 配置可能: "${w}" at (${r},${c}) ${dir}`);
           } else {
-            console.log(`❌ 配置不可: "${w}" at (${r},${c}) ${dir}`);
           }
         }
       }
@@ -374,7 +330,6 @@ function generatePuzzle(puzzle) {
         bestPlacement = allPlacements[0];
       }
       
-      console.log(`最適な配置を選択: "${bestPlacement.answer}" at (${bestPlacement.row},${bestPlacement.col}) ${bestPlacement.dir}`);
       placeWord(grid, bestPlacement.answer, bestPlacement.row, bestPlacement.col, bestPlacement.dir);
       placed.push(bestPlacement);
       
@@ -390,8 +345,6 @@ function generatePuzzle(puzzle) {
 
     // 交差できなかった場合は失敗
     if (!placedWord) {
-      console.log(`交差配置失敗: "${w}" - 配置できた単語のみで続行`);
-      console.log(`配置できた単語のみで続行: ${placed.length}個`);
       break;
     }
   }
@@ -405,18 +358,12 @@ function generatePuzzle(puzzle) {
   
   // バランス統計を表示（既存の変数を利用）
   const balanceRatio = Math.min(acrossCount, downCount) / Math.max(acrossCount, downCount);
-  console.log(`\n📊 最終バランス統計:`);
-  console.log(`  ヨコのカギ: ${acrossCount}個`);
-  console.log(`  タテのカギ: ${downCount}個`);
-  console.log(`  バランス比率: ${(balanceRatio * 100).toFixed(0)}% (100%が完璧なバランス)`);
 
   // 改良された番号付けロジック：実際に配置された単語のみに番号を付与
   let num = 1;
   const numbering = {};
   const across = [], down = [];
   
-  console.log('番号付けロジック開始');
-  console.log('配置された単語:', placed.map(w => `"${w.answer}" at (${w.row},${w.col}) ${w.dir}`));
   
   // 配置された単語の開始位置を収集してソート
   const wordStartPositions = placed.map(word => ({
@@ -433,25 +380,19 @@ function generatePuzzle(puzzle) {
     return a.c - b.c;
   });
   
-  console.log('ソート後の単語位置:', wordStartPositions);
   
   // 実際に配置された単語の位置のみに番号を付与
   for (const wordPos of wordStartPositions) {
     numbering[`${wordPos.r},${wordPos.c}`] = num;
-    console.log(`番号付与: "${wordPos.word}" at (${wordPos.r},${wordPos.c}) -> 番号${num}`);
     num++;
   }
 
   // ステップ③：ヨコとタテのカギを作成
-  console.log('ヨコとタテのカギを作成開始');
-  console.log('配置された単語:', placed.map(w => `${w.answer}(${w.dir})`));
   
   for (const word of placed) {
     const number = numbering[`${word.row},${word.col}`];
-    console.log(`単語 "${word.answer}" の番号: ${number}, 方向: ${word.dir}, clue: "${word.clue}"`);
     
     if (!number) {
-      console.warn(`警告: 単語 "${word.answer}" at (${word.row},${word.col}) に番号が付与されていません`);
       continue;
     }
     
@@ -472,10 +413,8 @@ function generatePuzzle(puzzle) {
 
     if (word.dir === "across") {
       across.push(clueData);
-      console.log(`ヨコのカギに追加: ${number}. ${word.clue}`);
     } else if (word.dir === "down") {
       down.push(clueData);
-      console.log(`タテのカギに追加: ${number}. ${word.clue}`);
     } else {
       console.error(`不明な方向: ${word.dir}`);
     }
@@ -485,27 +424,16 @@ function generatePuzzle(puzzle) {
   across.sort((a, b) => a.number - b.number);
   down.sort((a, b) => a.number - b.number);
 
-  console.log('最終結果:');
-  console.log(`配置された単語数: ${placed.length}/${words.length}`);
   // 既存の変数を再利用（重複宣言を避ける）
   acrossCount = placed.filter(p => p.dir === "across").length;
   downCount = placed.filter(p => p.dir === "down").length;
-  console.log(`縦横の内訳: ヨコ${acrossCount}個, タテ${downCount}個`);
-  console.log('配置された単語詳細:');
   placed.forEach((p, i) => {
-    console.log(`  ${i+1}: "${p.answer}" at (${p.row},${p.col}) ${p.dir} - ${p.clue}`);
   });
-  console.log('ヨコのカギ:', across);
-  console.log('タテのカギ:', down);
-  console.log('グリッド:');
   grid.forEach((row, i) => {
-    console.log(`  ${i}: ${row.join(' ')}`);
   });
 
   // 縦の単語が0個の場合は警告
   if (downCount === 0) {
-    console.warn('⚠️ 縦の単語が配置されていません！');
-    console.warn('配置された単語:', placed.map(p => `"${p.answer}" (${p.dir})`));
   }
 
   // 最小限のパズルチェック（少なくとも2単語は必要）
@@ -528,7 +456,6 @@ function generatePuzzle(puzzle) {
 
 // 最もシンプルなフォールバック関数
 function generateSimpleFallbackPuzzle(puzzle) {
-  console.log('🔄 シンプルフォールバック生成開始');
   
   const size = 7;
   const grid = createEmptyGrid(size);
@@ -575,7 +502,6 @@ function generateSimpleFallbackPuzzle(puzzle) {
     return a.col - b.col;
   });
   
-  console.log('シンプルフォールバック - ソート後の単語:', sortedWords.map(w => `"${w.answer}" at (${w.row},${w.col}) ${w.dir}`));
   
   for (const word of sortedWords) {
     numbering[`${word.row},${word.col}`] = num;
@@ -588,7 +514,6 @@ function generateSimpleFallbackPuzzle(puzzle) {
       length: word.answer.length
     };
     
-    console.log(`シンプルフォールバック - 番号付与: "${word.answer}" -> 番号${num}`);
     
     if (word.dir === "across") {
       across.push(clueData);
@@ -598,7 +523,6 @@ function generateSimpleFallbackPuzzle(puzzle) {
     num++;
   }
   
-  console.log('✅ シンプルフォールバック完了:', { across: across.length, down: down.length });
   
   return {
     grid,
@@ -611,7 +535,6 @@ function generateSimpleFallbackPuzzle(puzzle) {
 
 // フォールバック用のクロスワード生成（独立配置を許可）
 function generatePuzzleWithFallback(puzzle) {
-  console.log('フォールバック生成開始');
   
   const longest = Math.max(...puzzle.words.map(w => w.answer.length));
   let size = Math.max(9, longest + 4);
@@ -965,6 +888,27 @@ function dfs(grid, r, c, visited, region) {
   dfs(grid, r, c+1, visited, region);
 }
 
+// トースト通知
+function showToast(message, type = 'info', duration = 2500) {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;';
+        document.body.appendChild(container);
+    }
+    const colors = { info: '#4F46E5', success: '#10B981', error: '#EF4444', warning: '#F59E0B' };
+    const toast = document.createElement('div');
+    toast.style.cssText = `background:${colors[type]||colors.info};color:#fff;padding:12px 20px;border-radius:10px;font-size:0.9rem;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,0.2);opacity:0;transition:opacity .25s;max-width:320px;text-align:center;pointer-events:none;`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '1'; }, 10);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
 // グローバル変数
 let currentPuzzle = null;
 let answerMap = {};
@@ -1043,7 +987,6 @@ let currentDirection = 'across';
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('CrosPuzz アプリケーション開始');
     loadSettings();
     
     // パズルデータを読み込んでから初期化
@@ -1052,8 +995,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // PWA service worker registration
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Service Worker registered'))
-            .catch(err => console.log('Service Worker registration failed'));
+            
+            ;
     }
 });
 
@@ -1062,7 +1005,6 @@ let currentSelectedDifficulty = 'beginner';
 
 // 難易度選択機能
 function selectDifficulty(difficulty) {
-    console.log(`難易度選択: ${difficulty}`);
     
     currentSelectedDifficulty = difficulty;
     
@@ -1077,7 +1019,6 @@ function selectDifficulty(difficulty) {
     
     // 最初のパズルを自動選択
     if (puzzles[difficulty] && puzzles[difficulty].length > 0) {
-        console.log(`${difficulty}の最初のパズルを選択: ${puzzles[difficulty][0].title}`);
         selectPuzzle(difficulty, 0);
     } else {
         console.error(`${difficulty}の問題データが存在しません`, puzzles);
@@ -1130,7 +1071,6 @@ function updateDifficultyButtons(selectedDifficulty) {
 
 // パズル選択リストを更新（指定した難易度のパズルのみ表示）
 function updatePuzzleSelect(difficulty) {
-    console.log(`updatePuzzleSelect呼び出し: difficulty=${difficulty}`);
     const select = document.getElementById('puzzleSelect');
     if (!select) {
         console.error('puzzleSelectエレメントが見つかりません');
@@ -1140,13 +1080,11 @@ function updatePuzzleSelect(difficulty) {
     select.innerHTML = '';
     
     if (puzzles[difficulty]) {
-        console.log(`${difficulty}の問題数: ${puzzles[difficulty].length}`);
         puzzles[difficulty].forEach((puzzle, index) => {
             const option = document.createElement('option');
             option.value = index;
             option.textContent = puzzle.title;
             select.appendChild(option);
-            console.log(`オプション追加: index=${index}, title=${puzzle.title}`);
         });
     } else {
         console.error(`${difficulty}の問題データが見つかりません:`, puzzles);
@@ -1155,10 +1093,8 @@ function updatePuzzleSelect(difficulty) {
     // 選択イベントリスナーを再設定
     select.onchange = function(e) {
         const index = parseInt(e.target.value);
-        console.log(`パズル選択変更: difficulty=${currentSelectedDifficulty}, index=${index}`);
         selectPuzzle(currentSelectedDifficulty, index);
     };
-    console.log(`updatePuzzleSelect完了: 現在のオプション数=${select.options.length}`);
 }
 
 // パズル選択の初期化（新しい実装）
@@ -1169,7 +1105,6 @@ function initializePuzzleSelect() {
         puzzleSelect.addEventListener('change', function() {
             const selectedIndex = parseInt(this.value);
             if (!isNaN(selectedIndex)) {
-                console.log(`パズル選択変更: index=${selectedIndex}`);
                 selectPuzzle(currentSelectedDifficulty, selectedIndex);
             }
         });
@@ -1204,7 +1139,6 @@ function loadSettings() {
     }
     
     updateTranslations();
-    console.log('設定を読み込み:', settings);
 }
 
 // Save settings
@@ -1216,7 +1150,6 @@ function saveSettings() {
         selectedDifficulty: currentSelectedDifficulty
     };
     localStorage.setItem('crospuzz_settings', JSON.stringify(settings));
-    console.log('設定を保存:', settings);
 }
 
 // Initialize game
@@ -1252,13 +1185,12 @@ function initializeGame(forceInit = false) {
     const hintsRemainingEl = document.getElementById('hintsRemaining');
     if (hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining;
     if (forceInit) {
-        alert(currentLanguage === 'ja' ? '全て初期化しました' : 'All data has been initialized');
+        showToast(currentLanguage === 'ja' ? '全て初期化しました' : 'All data has been initialized', 'success');
     }
 }
 
 // パズル描画
 function renderPuzzle(index) {
-    console.log('renderPuzzle開始: index=', index);
     
     const target = document.getElementById('crosswordGrid');
     target.innerHTML = '';
@@ -1267,11 +1199,9 @@ function renderPuzzle(index) {
     if (currentPuzzle) {
         // 既に動的生成されたパズルがある場合はそれを使用
         data = currentPuzzle;
-        console.log('既存のパズルデータを使用:', data);
     } else {
         // 初回またはデフォルトパズルの場合
         const defaultPuzzle = puzzles.beginner[0];
-        console.log('デフォルトパズルを使用:', defaultPuzzle);
         data = generatePuzzle(defaultPuzzle);
         currentPuzzle = data;
     }
@@ -1307,6 +1237,8 @@ function renderPuzzle(index) {
                 input.setAttribute('autocapitalize', 'off');
                 input.setAttribute('spellcheck', 'false');
                 input.setAttribute('data-ime-mode', 'active');
+                input.dataset.row = r;
+                input.dataset.col = c;
                 input.addEventListener('input', handleCellInput);
                 input.addEventListener('focus', handleCellFocus);
                 input.addEventListener('keydown', handleKeydown);
@@ -1356,12 +1288,10 @@ function renderPuzzle(index) {
     // ヒント描画
     createClues(data);
     
-    console.log('パズル描画完了:', index);
 }
 
 // Create clues
 function createClues(data) {
-    console.log('createClues開始:', data);
     
     const acrossContainer = document.getElementById('acrossClues');
     const downContainer = document.getElementById('downClues');
@@ -1373,65 +1303,45 @@ function createClues(data) {
         return;
     }
     
-    console.log('Across clues:', data.across);
-    console.log('Down clues:', data.down);
     
+    function buildClueItem(item, dir) {
+        const el = document.createElement('div');
+        el.className = 'flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-all clue-item';
+        el.dataset.number = item.number;
+        el.dataset.dir = dir;
+        el.onclick = () => highlightWord(item.number, dir);
+        el.innerHTML = `
+            <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-bold">${item.number}</span>
+            <span class="text-gray-700 dark:text-gray-300">${item.clue}</span>
+        `;
+        return el;
+    }
+
     // Across clues (PC用)
     acrossContainer.innerHTML = '';
     data.across.sort((a,b) => a.number - b.number).forEach(item => {
-        const clueElement = document.createElement('div');
-        clueElement.className = 'flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors clue-item';
-        clueElement.onclick = () => highlightWord(item.number, 'across');
-        clueElement.innerHTML = `
-            <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-bold">${item.number}</span>
-            <span class="text-gray-700 dark:text-gray-300">${item.clue}</span>
-        `;
-        acrossContainer.appendChild(clueElement);
+        acrossContainer.appendChild(buildClueItem(item, 'across'));
     });
-    
+
     // Down clues (PC用)
     downContainer.innerHTML = '';
     data.down.sort((a,b) => a.number - b.number).forEach(item => {
-        const clueElement = document.createElement('div');
-        clueElement.className = 'flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors clue-item';
-        clueElement.onclick = () => highlightWord(item.number, 'down');
-        clueElement.innerHTML = `
-            <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-bold">${item.number}</span>
-            <span class="text-gray-700 dark:text-gray-300">${item.clue}</span>
-        `;
-        downContainer.appendChild(clueElement);
+        downContainer.appendChild(buildClueItem(item, 'down'));
     });
-    
+
     // モバイル用のカギも作成
     if (mobileAcrossContainer && mobileDownContainer) {
-        // Across clues (モバイル用)
         mobileAcrossContainer.innerHTML = '';
         data.across.sort((a,b) => a.number - b.number).forEach(item => {
-            const clueElement = document.createElement('div');
-            clueElement.className = 'flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors clue-item';
-            clueElement.onclick = () => highlightWord(item.number, 'across');
-            clueElement.innerHTML = `
-                <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-bold">${item.number}</span>
-                <span class="text-gray-700 dark:text-gray-300">${item.clue}</span>
-            `;
-            mobileAcrossContainer.appendChild(clueElement);
+            mobileAcrossContainer.appendChild(buildClueItem(item, 'across'));
         });
-        
-        // Down clues (モバイル用)
+
         mobileDownContainer.innerHTML = '';
         data.down.sort((a,b) => a.number - b.number).forEach(item => {
-            const clueElement = document.createElement('div');
-            clueElement.className = 'flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors clue-item';
-            clueElement.onclick = () => highlightWord(item.number, 'down');
-            clueElement.innerHTML = `
-                <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 rounded-full flex items-center justify-center text-xs font-bold">${item.number}</span>
-                <span class="text-gray-700 dark:text-gray-300">${item.clue}</span>
-            `;
-            mobileDownContainer.appendChild(clueElement);
+            mobileDownContainer.appendChild(buildClueItem(item, 'down'));
         });
     }
     
-    console.log('手がかり作成完了');
 }
 
 // Handle cell input
@@ -1471,7 +1381,6 @@ function handleCellInput(event) {
         moveToNextCell(cell);
     }, 10);
     
-    console.log(`セル入力: ${cell.id} = ${processedValue}`);
 }
 
 // クロスワードビルダー.comのルールに従った日本語文字の正規化
@@ -1670,8 +1579,48 @@ function highlightCurrentWord() {
 
 // Highlight word by number and direction
 function highlightWord(number, direction) {
-    // Implementation for highlighting specific words
-    console.log(`Highlighting word ${number} in direction ${direction}`);
+    if (!currentPuzzle) return;
+
+    // グリッドセルのハイライトをリセット
+    document.querySelectorAll('.crossword-cell').forEach(cell => {
+        cell.classList.remove('highlighted', 'active');
+    });
+    // カギ項目のアクティブスタイルをリセット
+    document.querySelectorAll('.clue-item').forEach(item => {
+        item.classList.remove('bg-indigo-50', 'dark:bg-indigo-900', 'border-l-4', 'border-indigo-400');
+    });
+
+    const clues = direction === 'across' ? currentPuzzle.across : currentPuzzle.down;
+    const clue = clues.find(c => c.number === number);
+    if (!clue) return;
+
+    const size = currentPuzzle.grid.length;
+    const allCells = document.querySelectorAll('.crossword-cell');
+
+    // 単語の各セルをハイライト
+    for (let i = 0; i < clue.length; i++) {
+        const row = clue.row + (direction === 'down' ? i : 0);
+        const col = clue.col + (direction === 'across' ? i : 0);
+        const idx = row * size + col;
+        if (allCells[idx]) {
+            allCells[idx].classList.add(i === 0 ? 'active' : 'highlighted');
+        }
+    }
+
+    // 先頭セルにフォーカス
+    const firstIdx = clue.row * size + clue.col;
+    const firstInput = allCells[firstIdx] && allCells[firstIdx].querySelector('.cell-input');
+    if (firstInput) {
+        currentCell = firstInput;
+        currentDirection = direction;
+        firstInput.focus();
+    }
+
+    // 対応するカギ項目をアクティブ表示
+    document.querySelectorAll(`.clue-item[data-number="${number}"][data-dir="${direction}"]`).forEach(el => {
+        el.classList.add('bg-indigo-50', 'dark:bg-indigo-900', 'border-l-4', 'border-indigo-400');
+        el.scrollIntoView({ block: 'nearest' });
+    });
 }
 
 // Update progress
@@ -1753,7 +1702,7 @@ function showHint() {
             }
         }
     } else {
-        alert(currentLanguage === 'ja' ? 'ヒントがありません' : 'No hints remaining');
+        showToast(currentLanguage === 'ja' ? 'ヒントがありません' : 'No hints remaining', 'warning');
     }
 }
 
@@ -1769,12 +1718,14 @@ function checkAnswers() {
         if (!cell.parentElement.classList.contains('blocked')) {
             totalCells++;
             const userAnswer = cell.value;
-            const correctAnswer = answerMap[`${cell.getAttribute('data-row')},${cell.getAttribute('data-col')}`];
-            
+            const r = cell.dataset.row;
+            const c = cell.dataset.col;
+            const correctAnswer = answerMap[`${r},${c}`];
+
             // かな表記で統一して比較
             const normalizedUserAnswer = normalizeJapaneseChar(userAnswer);
             const normalizedCorrectAnswer = normalizeJapaneseChar(correctAnswer);
-            
+
             if (normalizedUserAnswer === normalizedCorrectAnswer) {
                 correctCount++;
                 cell.style.color = '#10B981';
@@ -1815,12 +1766,14 @@ function checkAnswers() {
     });
     
     const accuracy = totalCells > 0 ? (correctCount / totalCells * 100).toFixed(1) : 0;
-    
-    if (accuracy === 100) {
+
+    if (parseFloat(accuracy) === 100) {
         showSuccessModal();
     } else {
-        const resultMessage = `正解率: ${accuracy}% (${correctCount}/${totalCells})\n\n単語チェック:\n${wordResults.join('\n')}`;
-        alert(resultMessage);
+        const msg = currentLanguage === 'ja'
+            ? `正解率: ${accuracy}% (${correctCount}/${totalCells}マス正解)`
+            : `Accuracy: ${accuracy}% (${correctCount}/${totalCells} cells)`;
+        showToast(msg, parseFloat(accuracy) >= 80 ? 'info' : 'warning', 3500);
     }
 }
 
@@ -1871,25 +1824,63 @@ function shareResults() {
         : `CrosPuzz completed! Progress: ${progress}, Time: ${timeText}`;
     
     if (navigator.share) {
-        navigator.share({
-            title: 'CrosPuzz',
-            text: shareText
-        });
+        navigator.share({ title: 'CrosPuzz', text: shareText });
     } else {
-        navigator.clipboard.writeText(shareText);
-        alert(currentLanguage === 'ja' ? '結果をクリップボードにコピーしました' : 'Results copied to clipboard');
+        navigator.clipboard.writeText(shareText).then(() => {
+            showToast(currentLanguage === 'ja' ? '結果をコピーしました' : 'Copied to clipboard', 'success');
+        });
     }
+}
+
+// ゲーム統計を更新・保存
+function updateGameStats(timeStr) {
+    const stats = JSON.parse(localStorage.getItem('crospuzz_stats') || '{"bestTime":null,"streak":0,"lastDate":null,"totalCompleted":0}');
+    const today = new Date().toISOString().slice(0, 10);
+
+    // 連続クリア日数
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    if (stats.lastDate === yesterday) {
+        stats.streak = (stats.streak || 0) + 1;
+    } else if (stats.lastDate !== today) {
+        stats.streak = 1;
+    }
+    stats.lastDate = today;
+    stats.totalCompleted = (stats.totalCompleted || 0) + 1;
+
+    // ベストタイム（秒で比較）
+    const toSeconds = (t) => {
+        const [m, s] = t.split(':').map(Number);
+        return m * 60 + s;
+    };
+    const currentSec = toSeconds(timeStr);
+    if (!stats.bestTime || currentSec < toSeconds(stats.bestTime)) {
+        stats.bestTime = timeStr;
+    }
+
+    localStorage.setItem('crospuzz_stats', JSON.stringify(stats));
+    return stats;
 }
 
 // Show success modal
 function showSuccessModal() {
     const modal = document.getElementById('successModal');
-    const finalTime = document.getElementById('timer').textContent;
+    const timerEl = document.getElementById('timer');
+    const finalTime = timerEl ? timerEl.textContent : '00:00';
     const hintsUsed = 3 - hintsRemaining;
-    
+
     document.getElementById('finalTime').textContent = finalTime;
     document.getElementById('hintsUsed').textContent = hintsUsed;
-    
+
+    const stats = updateGameStats(finalTime);
+
+    // 統計情報を更新（既存要素があれば）
+    const bestTimeEl = document.getElementById('statBestTime');
+    const streakEl = document.getElementById('statStreak');
+    const totalEl = document.getElementById('statTotal');
+    if (bestTimeEl) bestTimeEl.textContent = stats.bestTime || '--:--';
+    if (streakEl) streakEl.textContent = `${stats.streak}日`;
+    if (totalEl) totalEl.textContent = `${stats.totalCompleted}回`;
+
     modal.classList.remove('hidden');
 }
 
@@ -1929,9 +1920,18 @@ function loadGameState() {
 
 // Toggle mobile menu
 function toggleMobileMenu() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('translate-x-0');
-    sidebar.classList.toggle('-translate-x-full');
+    const menu = document.getElementById('mobileMenu');
+    const sidebar = document.getElementById('mobileSidebar');
+    if (!menu || !sidebar) return;
+
+    const isHidden = menu.classList.contains('hidden');
+    if (isHidden) {
+        menu.classList.remove('hidden');
+        setTimeout(() => sidebar.classList.remove('translate-x-full'), 10);
+    } else {
+        sidebar.classList.add('translate-x-full');
+        setTimeout(() => menu.classList.add('hidden'), 300);
+    }
 }
 
 // Toggle language
@@ -1974,7 +1974,6 @@ function setFontSize(size) {
 
 // パズル選択機能
 function selectPuzzle(difficulty, index) {
-  console.log(`パズル選択開始: difficulty=${difficulty}, index=${index}`);
 
   currentDifficulty = difficulty;
   currentPuzzleInDifficulty = index;
@@ -1982,13 +1981,8 @@ function selectPuzzle(difficulty, index) {
 
   // 選択されたパズルを動的生成
   const selectedPuzzle = puzzles[difficulty][index];
-  console.log('選択されたパズル:', selectedPuzzle);
-  console.log('パズルタイトル:', selectedPuzzle.title);
-  console.log('パズル単語:', selectedPuzzle.words.map(w => w.answer));
-  console.log('ファイルバージョン確認: 動物の名前パズルが読み込まれているかチェック');
     
     const data = generatePuzzle(selectedPuzzle);
-    console.log('生成されたパズルデータ:', data);
     
     currentPuzzle = data;
     answerMap = {};
@@ -2006,7 +2000,6 @@ function selectPuzzle(difficulty, index) {
     // 難易度バッジを更新
     updateDifficultyBadge(difficulty);
     
-    console.log(`パズル選択完了: ${difficulty} - ${selectedPuzzle.title}`);
 }
 
 // 難易度バッジを更新する関数

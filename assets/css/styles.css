@@ -114,7 +114,12 @@
 
 @media (max-width: 768px) {
     :root {
-        --grid-cell-size: 28px;
+        --grid-cell-size: 36px;
+    }
+
+    .crossword-grid {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }
 
