@@ -981,6 +981,7 @@ let currentLanguage = 'ja';
 let currentFontSize = 'base';
 let isDarkMode = false;
 let gameStartTime = null;
+let timerIntervalId = null;
 let hintsRemaining = 3;
 let currentCell = null;
 let currentDirection = 'across';
@@ -1496,83 +1497,108 @@ function handleKeydown(event) {
     }
 }
 
-// Move focus to adjacent cell
+// Move focus to adjacent cell (data-row/data-col属性を使用してバグ修正)
 function moveFocus(currentCell, rowDelta, colDelta) {
-    const cells = Array.from(document.querySelectorAll('.cell-input'));
-    const currentIndex = cells.indexOf(currentCell);
-    const size = Math.sqrt(cells.length);
-    const currentRow = Math.floor(currentIndex / size);
-    const currentCol = currentIndex % size;
-    
+    const currentRow = parseInt(currentCell.dataset.row);
+    const currentCol = parseInt(currentCell.dataset.col);
+    const size = currentPuzzle ? currentPuzzle.grid.length : 9;
+
     const newRow = currentRow + rowDelta;
     const newCol = currentCol + colDelta;
-    
+
     if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
-        const newIndex = newRow * size + newCol;
-        if (cells[newIndex] && !cells[newIndex].parentElement.classList.contains('blocked')) {
-            cells[newIndex].focus();
+        const targetInput = document.querySelector(`.cell-input[data-row="${newRow}"][data-col="${newCol}"]`);
+        if (targetInput) {
+            targetInput.focus();
         }
     }
 }
 
-// Move to next cell
+// Move to next cell (方向対応: currentDirection に従って移動)
 function moveToNextCell(cell) {
-    const cells = Array.from(document.querySelectorAll('.cell-input'));
-    const currentIndex = cells.indexOf(cell);
-    const nextIndex = currentIndex + 1;
-    
-    if (nextIndex < cells.length && !cells[nextIndex].parentElement.classList.contains('blocked')) {
-        cells[nextIndex].focus();
+    const currentRow = parseInt(cell.dataset.row);
+    const currentCol = parseInt(cell.dataset.col);
+    const size = currentPuzzle ? currentPuzzle.grid.length : 9;
+
+    let nextInput;
+    if (currentDirection === 'down') {
+        for (let row = currentRow + 1; row < size; row++) {
+            nextInput = document.querySelector(`.cell-input[data-row="${row}"][data-col="${currentCol}"]`);
+            if (nextInput) break;
+        }
+    } else {
+        for (let col = currentCol + 1; col < size; col++) {
+            nextInput = document.querySelector(`.cell-input[data-row="${currentRow}"][data-col="${col}"]`);
+            if (nextInput) break;
+        }
+    }
+
+    if (nextInput) {
+        nextInput.focus();
     }
 }
 
-// Move to previous cell
+// Move to previous cell (方向対応)
 function moveToPreviousCell(cell) {
-    const cells = Array.from(document.querySelectorAll('.cell-input'));
-    const currentIndex = cells.indexOf(cell);
-    const prevIndex = currentIndex - 1;
-    
-    if (prevIndex >= 0 && !cells[prevIndex].parentElement.classList.contains('blocked')) {
-        cells[prevIndex].focus();
-        cells[prevIndex].value = '';
+    const currentRow = parseInt(cell.dataset.row);
+    const currentCol = parseInt(cell.dataset.col);
+
+    let prevInput;
+    if (currentDirection === 'down') {
+        for (let row = currentRow - 1; row >= 0; row--) {
+            prevInput = document.querySelector(`.cell-input[data-row="${row}"][data-col="${currentCol}"]`);
+            if (prevInput) break;
+        }
+    } else {
+        for (let col = currentCol - 1; col >= 0; col--) {
+            prevInput = document.querySelector(`.cell-input[data-row="${currentRow}"][data-col="${col}"]`);
+            if (prevInput) break;
+        }
+    }
+
+    if (prevInput) {
+        prevInput.focus();
+        prevInput.value = '';
     }
 }
 
-// Highlight current word
+// Highlight current word (currentDirection対応、data属性でバグ修正)
 function highlightCurrentWord() {
     if (!currentCell) return;
-    
-    // Remove previous highlights
+
     document.querySelectorAll('.crossword-cell').forEach(cell => {
         cell.classList.remove('highlighted');
     });
-    
-    // Highlight current word
-    const cells = Array.from(document.querySelectorAll('.cell-input'));
-    const currentIndex = cells.indexOf(currentCell);
-    const size = Math.sqrt(cells.length);
-    const currentRow = Math.floor(currentIndex / size);
-    const currentCol = currentIndex % size;
-    
-    // Find word boundaries and highlight
-    let startCol = currentCol;
-    let endCol = currentCol;
-    
-    // Find start of word
-    while (startCol > 0 && !cells[currentRow * size + startCol - 1].parentElement.classList.contains('blocked')) {
-        startCol--;
-    }
-    
-    // Find end of word
-    while (endCol < size - 1 && !cells[currentRow * size + endCol + 1].parentElement.classList.contains('blocked')) {
-        endCol++;
-    }
-    
-    // Highlight word
-    for (let col = startCol; col <= endCol; col++) {
-        const cellIndex = currentRow * size + col;
-        if (cells[cellIndex]) {
-            cells[cellIndex].parentElement.classList.add('highlighted');
+
+    const currentRow = parseInt(currentCell.dataset.row);
+    const currentCol = parseInt(currentCell.dataset.col);
+    const size = currentPuzzle ? currentPuzzle.grid.length : 9;
+
+    if (currentDirection === 'down') {
+        let startRow = currentRow;
+        while (startRow > 0 && document.querySelector(`.cell-input[data-row="${startRow - 1}"][data-col="${currentCol}"]`)) {
+            startRow--;
+        }
+        let endRow = currentRow;
+        while (endRow < size - 1 && document.querySelector(`.cell-input[data-row="${endRow + 1}"][data-col="${currentCol}"]`)) {
+            endRow++;
+        }
+        for (let row = startRow; row <= endRow; row++) {
+            const inp = document.querySelector(`.cell-input[data-row="${row}"][data-col="${currentCol}"]`);
+            if (inp) inp.parentElement.classList.add('highlighted');
+        }
+    } else {
+        let startCol = currentCol;
+        while (startCol > 0 && document.querySelector(`.cell-input[data-row="${currentRow}"][data-col="${startCol - 1}"]`)) {
+            startCol--;
+        }
+        let endCol = currentCol;
+        while (endCol < size - 1 && document.querySelector(`.cell-input[data-row="${currentRow}"][data-col="${endCol + 1}"]`)) {
+            endCol++;
+        }
+        for (let col = startCol; col <= endCol; col++) {
+            const inp = document.querySelector(`.cell-input[data-row="${currentRow}"][data-col="${col}"]`);
+            if (inp) inp.parentElement.classList.add('highlighted');
         }
     }
 }
@@ -1645,19 +1671,39 @@ function updateProgress() {
     if (mobileProgress) mobileProgress.textContent = `${progress}%`;
     if (progressBar) progressBar.style.width = `${progress}%`;
     
-    // Check if puzzle is complete
-    if (progress === 100) {
+    // 全マス入力済みかつ全正解の場合のみ成功モーダル表示
+    if (progress === 100 && checkAllAnswersCorrect()) {
         showSuccessModal();
     }
 }
 
-// Start timer
+// 全セル正解チェック
+function checkAllAnswersCorrect() {
+    const inputs = document.querySelectorAll('.cell-input');
+    for (const input of inputs) {
+        const r = input.dataset.row;
+        const c = input.dataset.col;
+        const correctAnswer = answerMap[`${r},${c}`];
+        if (!correctAnswer) continue;
+        const normalizedUser = normalizeJapaneseChar(input.value);
+        const normalizedCorrect = normalizeJapaneseChar(correctAnswer);
+        if (normalizedUser !== normalizedCorrect) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Start timer (既存インターバルをクリアして多重起動防止)
 function startTimer() {
+    if (timerIntervalId) {
+        clearInterval(timerIntervalId);
+    }
     if (!gameStartTime) {
         gameStartTime = Date.now();
     }
     updateTimer();
-    setInterval(updateTimer, 1000);
+    timerIntervalId = setInterval(updateTimer, 1000);
 }
 
 // Update timer
@@ -1684,11 +1730,8 @@ function showHint() {
         
         if (emptyCells.length > 0) {
             const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            const cells = Array.from(document.querySelectorAll('.cell-input'));
-            const cellIndex = cells.indexOf(randomCell);
-            const size = Math.sqrt(cells.length);
-            const row = Math.floor(cellIndex / size);
-            const col = cellIndex % size;
+            const row = parseInt(randomCell.dataset.row);
+            const col = parseInt(randomCell.dataset.col);
             const correctAnswer = answerMap[`${row},${col}`];
             
             if (correctAnswer) {
@@ -1981,12 +2024,19 @@ function selectPuzzle(difficulty, index) {
 
   // 選択されたパズルを動的生成
   const selectedPuzzle = puzzles[difficulty][index];
-    
+
     const data = generatePuzzle(selectedPuzzle);
-    
+
     currentPuzzle = data;
     answerMap = {};
-    
+
+    // パズル切り替え時にタイマーをリセット
+    gameStartTime = Date.now();
+    hintsRemaining = 3;
+    const hintsRemainingEl = document.getElementById('hintsRemaining');
+    if (hintsRemainingEl) hintsRemainingEl.textContent = hintsRemaining;
+    startTimer();
+
     renderPuzzle(0); // 動的生成されたパズルを表示
     saveGameState();
     updateProgress();
@@ -2037,7 +2087,20 @@ function updateDifficultyBadge(difficulty) {
     }
 }
 
+// 次のパズルへ移動
+function nextPuzzle() {
+    closeSuccessModal();
+    const difficultyPuzzles = puzzles[currentDifficulty] || [];
+    const nextIndex = (currentPuzzleInDifficulty + 1) % difficultyPuzzles.length;
+    selectDifficulty(currentDifficulty);
+    selectPuzzle(currentDifficulty, nextIndex);
+    // パズル選択UIを更新
+    const puzzleSelect = document.getElementById('puzzleSelect');
+    if (puzzleSelect) puzzleSelect.value = nextIndex;
+}
+
 // グローバルスコープに関数を登録（HTML onclickから呼び出すため）
+window.nextPuzzle = nextPuzzle;
 window.checkAnswers = checkAnswers;
 window.showHint = showHint;
 window.resetGame = resetGame;

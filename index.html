@@ -538,13 +538,18 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
                 </div>
             </div>
             
-            <div class="flex space-x-3">
-                <button onclick="shareResults()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
-                    <span aria-hidden="true" class="mr-2">↗</span>
-                    <span data-i18n="share_results">結果をシェア</span>
-                </button>
-                <button onclick="closeSuccessModal()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors">
-                    <span data-i18n="close">閉じる</span>
+            <div class="flex flex-col gap-2">
+                <div class="flex space-x-3">
+                    <button onclick="shareResults()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
+                        <span aria-hidden="true" class="mr-2">↗</span>
+                        <span data-i18n="share_results">結果をシェア</span>
+                    </button>
+                    <button onclick="closeSuccessModal()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors">
+                        <span data-i18n="close">閉じる</span>
+                    </button>
+                </div>
+                <button onclick="nextPuzzle()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors font-bold">
+                    <span aria-hidden="true" class="mr-2">▶</span>次のパズルへ
                 </button>
             </div>
         </div>
