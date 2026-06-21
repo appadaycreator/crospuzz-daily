@@ -73,20 +73,32 @@ header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdro
 .burger{display:none;font-size:24px;background:none;border:none;cursor:pointer}
 
 /* Hero */
-.hero{position:relative;overflow:hidden;color:#fff;
-  background:linear-gradient(120deg,rgba(49,42,128,.86),rgba(79,70,229,.78)),url('../assets/photos/photo_01.jpg') center/cover no-repeat}
-.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(236,72,153,.28),transparent 45%);pointer-events:none}
-.hero-in{position:relative;z-index:2;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding:78px 0}
-.hero .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;margin-bottom:20px}
+.hero{position:relative;overflow:hidden;color:var(--ink);
+  background:linear-gradient(160deg,#F5F3FF 0%,#EEF0FF 48%,#FCEEF6 100%)}
+.hero::before{content:"";position:absolute;top:-130px;right:-90px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(124,108,240,.22),transparent 70%);pointer-events:none}
+.hero::after{content:"";position:absolute;bottom:-120px;left:-70px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(236,72,153,.16),transparent 70%);pointer-events:none}
+.hero-in{position:relative;z-index:2;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding:74px 0 84px}
+.hero .badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #E2DEF8;color:var(--indigo);box-shadow:0 6px 18px rgba(79,70,229,.12);padding:8px 18px;border-radius:999px;font-size:13px;font-weight:800;margin-bottom:20px}
 .hero h1{font-size:clamp(32px,5vw,52px);font-weight:900;line-height:1.2;letter-spacing:-.02em}
-.hero h1 span{color:#FBCFE8}
-.hero p.lead{margin:20px 0 28px;font-size:18px;color:rgba(255,255,255,.92);max-width:480px}
+.hero h1 span{background:linear-gradient(120deg,var(--indigo),var(--pink));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p.lead{margin:20px 0 28px;font-size:18px;color:#475569;max-width:480px}
 .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
-.hero-stats{display:flex;gap:28px;margin-top:34px}
-.hero-stats .n{font-size:28px;font-weight:900;color:#fff}
-.hero-stats .l{font-size:12px;color:rgba(255,255,255,.8)}
+.hero-trust{display:flex;align-items:center;gap:14px;margin-top:26px}
+.hero-trust .avs{display:flex}
+.hero-trust .avs img{width:38px;height:38px;border-radius:50%;object-fit:cover;border:3px solid #fff;margin-left:-12px;box-shadow:0 3px 8px rgba(30,27,75,.18)}
+.hero-trust .avs img:first-child{margin-left:0}
+.hero-trust .tx{font-size:13px;color:#475569;font-weight:600;line-height:1.45}
+.hero-trust .tx b{color:var(--ink);font-weight:900}
+.hero-trust .tx .st{color:#F59E0B}
+.hero-stats{display:flex;gap:28px;margin-top:30px;padding-top:26px;border-top:1px solid rgba(79,70,229,.14)}
+.hero-stats .n{font-size:28px;font-weight:900;color:var(--indigo)}
+.hero-stats .l{font-size:12px;color:var(--gray)}
 /* puzzle preview card */
-.pcard{background:#fff;border-radius:20px;box-shadow:0 30px 60px rgba(20,16,70,.35);padding:18px;color:var(--ink)}
+.pwrap{position:relative}
+.pphoto{position:absolute;bottom:-30px;left:-28px;width:132px;border-radius:16px;overflow:hidden;border:5px solid #fff;box-shadow:0 18px 40px rgba(30,27,75,.26);z-index:4;transform:rotate(-4deg)}
+.pphoto img{width:100%;aspect-ratio:1/1;object-fit:cover}
+.pphoto .cap{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(30,27,75,.78));color:#fff;font-size:10px;font-weight:800;padding:14px 8px 6px;text-align:center}
+.pcard{background:#fff;border-radius:20px;box-shadow:0 30px 60px rgba(20,16,70,.22);padding:18px;color:var(--ink);position:relative;z-index:2;border:1px solid #EDEBFB}
 .pcard .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .pcard .tag{font-size:11px;font-weight:800;color:var(--indigo);background:var(--indigo-l);padding:4px 10px;border-radius:999px}
 .grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;max-width:240px}
@@ -210,6 +222,8 @@ footer .cp{text-align:center;color:rgba(255,255,255,.6);font-size:13px}
   .statbar{grid-template-columns:1fr}
   .hero-stats{gap:18px}
   .sec{padding:54px 0}
+  .pphoto{width:96px;left:auto;right:-6px;bottom:-22px}
+  .hero-trust .tx{font-size:12px}
 }
 </style>
 </head>
@@ -245,6 +259,15 @@ footer .cp{text-align:center;color:rgba(255,255,255,.6);font-size:13px}
         <a href="../index.html" class="btn btn-pink">今すぐ挑戦</a>
         <a href="#howto" class="btn btn-ghost">遊び方を見る</a>
       </div>
+      <div class="hero-trust">
+        <div class="avs">
+          <img src="../assets/photos/photo_13.jpg" alt="利用者">
+          <img src="../assets/photos/photo_14.jpg" alt="利用者">
+          <img src="../assets/photos/photo_15.jpg" alt="利用者">
+          <img src="../assets/photos/photo_16.jpg" alt="利用者">
+        </div>
+        <div class="tx"><b>10,000人以上</b>が毎日プレイ中<br><span class="st">★★★★★</span> 満足度の高い脳トレ</div>
+      </div>
       <div class="hero-stats">
         <div><div class="n">毎日</div><div class="l">新しいパズル</div></div>
         <div><div class="n">3段階</div><div class="l">難易度選択</div></div>
@@ -252,6 +275,8 @@ footer .cp{text-align:center;color:rgba(255,255,255,.6);font-size:13px}
       </div>
     </div>
     <!-- puzzle preview card -->
+    <div class="pwrap">
+    <div class="pphoto"><img src="../assets/photos/photo_05.jpg" alt="クロスワードを解く様子"><span class="cap">毎日の習慣に</span></div>
     <div class="pcard">
       <div class="top">
         <span class="tag">今日のパズル</span>
@@ -284,6 +309,17 @@ footer .cp{text-align:center;color:rgba(255,255,255,.6);font-size:13px}
         </div>
       </div>
     </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trust strip -->
+<section style="background:#fff;border-bottom:1px solid var(--line)">
+  <div class="wrap" style="display:flex;flex-wrap:wrap;justify-content:center;gap:14px 34px;padding:20px 20px">
+    <span style="display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:#475569"><img src="../assets/icons/split/03-07.png" style="width:22px;height:22px" alt="">登録不要ですぐ遊べる</span>
+    <span style="display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:#475569"><img src="../assets/icons/split/03-07.png" style="width:22px;height:22px" alt="">完全無料・課金なし</span>
+    <span style="display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:#475569"><img src="../assets/icons/split/03-07.png" style="width:22px;height:22px" alt="">毎日AIが自動生成</span>
+    <span style="display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:#475569"><img src="../assets/icons/split/03-07.png" style="width:22px;height:22px" alt="">スマホ・PC対応</span>
   </div>
 </section>
 
