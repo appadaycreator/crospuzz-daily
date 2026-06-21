@@ -51,6 +51,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="assets/css/styles.css">
+    <!-- M4: Chart.js スコア可視化 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
     <meta property="og:type" content="website">
         <meta property="og:image" content="https://appadaycreator.com/crospuzz-daily/assets/images/ogp.png">
 <meta property="og:site_name" content="appadaycreator" />
@@ -112,6 +114,11 @@
   body{background:#fff!important;color:#000!important;font-size:12pt}
   [id*="result"],[id*="output"],[id*="advice"],[id*="diagnosis"],[class*="result"]{display:block!important}
   a[href]::after{content:none!important}
+  /* M10: 印刷時に成功モーダルのみ表示 */
+  body.cp-printing>*:not(#successModal){display:none!important}
+  body.cp-printing #successModal{display:flex!important;position:static!important;background:none!important;}
+  body.cp-printing #successModal button{display:none!important}
+  #resultChart{max-height:180px!important}
 }
 
 .card{background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);overflow:hidden;}
@@ -157,10 +164,11 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
                 
                 <!-- Desktop Navigation -->
                 <nav class="hidden md:flex items-center space-x-8">
-                    <a href="#game" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 transition-colors" data-i18n="nav_game">ゲーム</a>
-                    <a href="#how-to" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 transition-colors" data-i18n="nav_howto">使い方</a>
-                    <a href="#privacy" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 transition-colors" data-i18n="nav_privacy">プライバシー</a>
-                    <a href="#contact" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 transition-colors" data-i18n="nav_contact">お問い合わせ</a>
+                    <a href="#main" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 transition-colors">今日のパズル</a>
+                    <a href="#cp-howto" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 transition-colors">遊び方</a>
+                    <a href="#cp-ranking" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 transition-colors">ランキング</a>
+                    <a href="#cp-faq" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 transition-colors">FAQ</a>
+                    <a href="#main" class="cp-nav-cta">今すぐ挑戦</a>
                 </nav>
                 
                 <!-- Controls -->
@@ -295,8 +303,13 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
                         <span aria-hidden="true" class="mr-2">↗</span>
                         <span data-i18n="share">シェア</span>
                     </button>
+                    <!-- M10: 印刷ボタン（サイドバー） -->
+                    <button onclick="printResult()" class="w-full bg-slate-600 hover:bg-slate-700 text-white py-2 px-4 rounded-lg transition-colors">
+                        <span aria-hidden="true" class="mr-2">🖨</span>
+                        <span>印刷</span>
+                    </button>
                 </div>
-                
+
                 <!-- Affiliate Section -->
                 <div class="pt-6 border-t border-gray-200 dark:border-gray-600">
                     <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-4" data-i18n="recommended">おすすめ</h3>
@@ -311,6 +324,45 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
                         </a>
                     </div>
                 </div>
+
+                <!-- ランキング -->
+                <div class="cp-card" id="cp-ranking">
+                    <div class="cp-h"><img src="assets/icons/split/01-06.png" alt="">本日のランキング</div>
+                    <ul class="cp-rank">
+                        <li><span class="rk g">1</span><img class="av" src="assets/photos/photo_08.jpg" alt=""><span class="nm">ことば名人</span><span class="sc">9,820</span></li>
+                        <li><span class="rk s">2</span><img class="av" src="assets/photos/photo_09.jpg" alt=""><span class="nm">脳トレ太郎</span><span class="sc">9,510</span></li>
+                        <li><span class="rk b">3</span><img class="av" src="assets/photos/photo_10.jpg" alt=""><span class="nm">語彙ハンター</span><span class="sc">9,140</span></li>
+                        <li><span class="rk">4</span><img class="av" src="assets/photos/photo_11.jpg" alt=""><span class="nm">クロス職人</span><span class="sc">8,760</span></li>
+                    </ul>
+                </div>
+
+                <!-- 連続達成 -->
+                <div class="cp-card">
+                    <div class="cp-h"><img src="assets/icons/split/03-02.png" alt="">連続達成記録</div>
+                    <div class="cp-streak">
+                        <img src="assets/icons/split/03-02.png" alt="">
+                        <div>
+                            <div style="font-weight:900;font-size:18px;color:#9A3412;">14日連続</div>
+                            <div style="font-size:12px;color:#9A3412;">毎日続けて記録を伸ばそう！</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SNS共有 -->
+                <div class="cp-card">
+                    <div class="cp-h"><img src="assets/icons/split/01-07.png" alt="">結果をシェア</div>
+                    <div class="cp-sns">
+                        <a href="https://twitter.com/intent/tweet?text=CrosPuzz（クロスパズ）で脳トレ中！&url=https://appadaycreator.com/crospuzz-daily/" target="_blank" rel="noopener" style="background:#000;">X で共有</a>
+                        <a href="https://line.me/R/msg/text/?CrosPuzz（クロスパズ）%0Ahttps://appadaycreator.com/crospuzz-daily/" target="_blank" rel="noopener" style="background:#06C755;">LINE</a>
+                    </div>
+                </div>
+
+                <!-- デイリーチャレンジ -->
+                <div class="cp-daily">
+                    <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;margin-bottom:6px;"><img src="assets/icons/split/01-03.png" style="width:22px;height:22px;" alt="">デイリーチャレンジ</div>
+                    <div class="n">+50pt</div>
+                    <div style="font-size:12px;opacity:.9;">今日のパズルをクリアでボーナス獲得</div>
+                </div>
             </div>
         </aside>
 
@@ -318,7 +370,7 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
         <main id="main" role="main" class="flex-1 p-6">
             <!-- Game Header -->
             <div class="text-center mb-4">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1" data-i18n="daily_puzzle">今日のパズル</h2>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1" data-i18n="daily_puzzle">今日のクロスワードパズル</h2>
                 <p class="text-sm text-gray-600 dark:text-gray-400" data-i18n="puzzle_date" id="puzzleDate">2024年1月15日</p>
                 
                 <!-- 難易度選択 -->
@@ -507,6 +559,36 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
 </main>
     </div>
 
+    <!-- ===== 遊び方 ===== -->
+    <div class="cp-fw" id="cp-howto">
+      <div class="cp-sec-h"><span class="eb">HOW TO PLAY</span><h2>遊び方は<b>かんたん3ステップ</b></h2></div>
+      <div class="cp-steps">
+        <div class="cp-step"><div class="num">1</div><div class="ic"><img src="assets/icons/split/02-06.png" alt=""></div><h3>カギを読む</h3><p>ヨコ・タテのカギ（ヒント）を読んで、当てはまる言葉を考えます。</p></div>
+        <div class="cp-step"><div class="num">2</div><div class="ic"><img src="assets/icons/split/02-07.png" alt=""></div><h3>マスに入力</h3><p>確実なマスから言葉を入力。交差する文字で他のカギも解けます。</p></div>
+        <div class="cp-step"><div class="num">3</div><div class="ic"><img src="assets/icons/split/03-07.png" alt=""></div><h3>答え合わせ</h3><p>すべて埋めたら答え合わせ。クリアタイムとスコアを記録します。</p></div>
+      </div>
+    </div>
+
+    <!-- ===== 語彙力・知識力アップ ===== -->
+    <div class="cp-fw">
+      <div class="cp-sec-h"><span class="eb">EFFECTS</span><h2>語彙力・<b>知識力アップ</b></h2></div>
+      <div class="cp-bens">
+        <div class="cp-ben"><div class="pic"><img src="assets/photos/photo_04.jpg" alt=""></div><div class="pad"><div class="ic"><img src="assets/icons/split/02-02.png" alt=""></div><h3>語彙力アップ</h3><p>日常では出会わない言葉に触れ、語彙が自然と増えていきます。</p></div></div>
+        <div class="cp-ben"><div class="pic"><img src="assets/photos/photo_05.jpg" alt=""></div><div class="pad"><div class="ic"><img src="assets/icons/split/02-03.png" alt=""></div><h3>脳の活性化</h3><p>考えて解くプロセスが脳を刺激し、集中力をしっかり鍛えます。</p></div></div>
+        <div class="cp-ben"><div class="pic"><img src="assets/photos/photo_06.jpg" alt=""></div><div class="pad"><div class="ic"><img src="assets/icons/split/01-05.png" alt=""></div><h3>ひらめき力</h3><p>ヒントから答えを導く発想力・推理力が自然と養われます。</p></div></div>
+        <div class="cp-ben"><div class="pic"><img src="assets/photos/photo_07.jpg" alt=""></div><div class="pad"><div class="ic"><img src="assets/icons/split/03-04.png" alt=""></div><h3>知識力アップ</h3><p>幅広いジャンルの問題で、一般教養と知識量が増えていきます。</p></div></div>
+      </div>
+    </div>
+
+    <!-- ===== 完成おめでとうCTA ===== -->
+    <div class="cp-fw">
+      <div class="cp-celebrate">
+        <h2>🎉 今日のパズルに挑戦しよう</h2>
+        <p>毎日更新の横並びクロスワードで、語彙力・知識力・ひらめき力を楽しくレベルアップ。登録不要・完全無料です。</p>
+        <a href="#main">今すぐ挑戦</a>
+      </div>
+    </div>
+
     <!-- Success Modal -->
     <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden modal-backdrop">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md mx-4 text-center">
@@ -542,7 +624,11 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
                     </div>
                 </div>
             </div>
-            
+            <!-- M4: スコア履歴グラフ（Chart.js） -->
+            <div class="mb-3" style="height:150px;position:relative;">
+                <canvas id="resultChart"></canvas>
+            </div>
+
             <div class="flex flex-col gap-2">
                 <div class="flex space-x-3">
                     <button onclick="shareResults()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
@@ -551,6 +637,18 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
                     </button>
                     <button onclick="closeSuccessModal()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors">
                         <span data-i18n="close">閉じる</span>
+                    </button>
+                </div>
+                <!-- M10: エクスポート機能 -->
+                <div class="flex gap-2">
+                    <button onclick="copyResultToClipboard()" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-2 px-2 rounded-lg transition-colors text-sm" aria-label="結果をクリップボードにコピー">
+                        <span aria-hidden="true">📋</span> コピー
+                    </button>
+                    <button onclick="downloadResultCSV()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-2 px-2 rounded-lg transition-colors text-sm" aria-label="記録をCSVでダウンロード">
+                        <span aria-hidden="true">📥</span> CSV
+                    </button>
+                    <button onclick="printResult()" class="flex-1 bg-slate-600 hover:bg-slate-700 text-white py-2 px-2 rounded-lg transition-colors text-sm" aria-label="結果を印刷">
+                        <span aria-hidden="true">🖨</span> 印刷
                     </button>
                 </div>
                 <button onclick="nextPuzzle()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors font-bold">
@@ -602,7 +700,7 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
       <h2 style="font-size:1.05rem;font-weight:800;color:#1e293b;text-align:center;margin:0 0 14px">🔤 クロスワードパズルが脳に与える効果</h2>
       <div style="max-width:680px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
         <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px"><strong style="color:#9a3412;font-size:.9rem">📖 語彙力・読解力の向上</strong><p style="font-size:.8rem;color:#374151;margin:6px 0 0;line-height:1.6">クロスワードを続けることで日常では使わない語彙に触れる機会が増え、自然と語彙力が向上します。語彙が豊富になると読解力・表現力・コミュニケーション能力すべてが向上します。</p></div>
-        <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px"><strong style="color:#9a3412;font-size:.9rem">🧠 認知症予防・脳の老化防止</strong><p style="font-size:.8rem;color:#374151;margin:6px 0 0;line-height:1.6">クロスワードパズルは前頭葉を活性化させ、認知症予防に効果があるとされています。特にシニア世代の定期的な脳活性化として、医療機関でも推奨されている活動です。</p></div>
+        <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px"><strong style="color:#9a3412;font-size:.9rem">🧠 脳の活性化・集中力向上</strong><p style="font-size:.8rem;color:#374151;margin:6px 0 0;line-height:1.6">クロスワードパズルは脳を活性化させ、集中力や語彙力の向上に役立つとされています。シニア世代を含む幅広い年代で愛されている脳トレ活動です。</p></div>
         <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px"><strong style="color:#9a3412;font-size:.9rem">🔍 注意力・集中力の強化</strong><p style="font-size:.8rem;color:#374151;margin:6px 0 0;line-height:1.6">ヒントから答えを推測する作業は、複数の手がかりを同時に処理する注意力を鍛えます。クロスワードを毎日解くことで、日常の集中力・マルチタスク能力が向上します。</p></div>
         <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px"><strong style="color:#9a3412;font-size:.9rem">💡 創造的思考力の発達</strong><p style="font-size:.8rem;color:#374151;margin:6px 0 0;line-height:1.6">「ヒントから正解を導く」思考プロセスは創造的思考（ラテラルシンキング）を鍛えます。固定観念にとらわれず多角的に考える力が、仕事・勉強・日常問題解決に活かされます。</p></div>
         <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px"><strong style="color:#9a3412;font-size:.9rem">😌 ストレス解消・リラックス効果</strong><p style="font-size:.8rem;color:#374151;margin:6px 0 0;line-height:1.6">パズルに集中することで日常のストレスから解放され、マインドフルネスに近い状態が得られます。「難問が解けた！」という達成感はドーパミン分泌を促し、気分が晴れる効果があります。</p></div>
@@ -625,7 +723,7 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
 
     <!-- クロスワードFAQ -->
     <div style="background:#fff7ed;padding:20px 16px;border-top:1px solid #fed7aa;font-family:'Noto Sans JP',system-ui,sans-serif">
-      <h2 style="font-size:1rem;font-weight:800;color:#9a3412;text-align:center;margin:0 0 14px">❓ よくある質問</h2>
+      <span id="cp-faq"></span><h2 style="font-size:1rem;font-weight:800;color:#9a3412;text-align:center;margin:0 0 14px">❓ よくある質問</h2>
       <div style="max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:10px">
         <div style="background:#fff;border:1px solid #fed7aa;border-radius:10px;padding:14px"><strong style="color:#ea580c;font-size:.88rem">Q. 毎日のクロスワードはどれくらい難しいですか？</strong><p style="font-size:.8rem;color:#374151;margin:6px 0 0;line-height:1.6">難易度は「かんたん」「ふつう」「むずかしい」の3段階から選べます。初心者は「かんたん」から始めて、徐々に難度を上げていくことをおすすめします。</p></div>
         <div style="background:#fff;border:1px solid #fed7aa;border-radius:10px;padding:14px"><strong style="color:#ea580c;font-size:.88rem">Q. スコアや記録は保存されますか？</strong><p style="font-size:.8rem;color:#374151;margin:6px 0 0;line-height:1.6">ベストスコア・連続クリア日数・完了回数がブラウザのLocalStorageに自動保存されます。ログイン不要で成長を確認できます。</p></div>
@@ -680,9 +778,18 @@ select,input[type=text],input[type=number],input[type=email],textarea{min-height
     </div>
 
     <div style="background:#fff7ed;padding:8px 16px;border-top:1px solid #fed7aa;font-family:'Noto Sans JP',system-ui,sans-serif;text-align:center"><p style="font-size:.72rem;color:#9a3412;margin:0">毎日更新される新鮮なクロスワードパズルで語彙力を磨こう。あなたの連続クリア記録に挑戦中！クロスワードパズルは言葉の知識と推理力を同時に鍛えられる最強の脳トレです。難易度かんたん・ふつう・むずかしいの3段階で、どんなレベルの方でも楽しめます。毎日少しずつ積み重ねて語彙力日本一を目指しましょう！パズルを解くたびに新しい言葉との出会いがあります。その積み重ねが確かな語彙力となり、読書・会話・仕事・学習すべてに活きてきます。</p></div>
-    <div id="page-loader" class="loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column">
-      <div class="spinner" style="width:40px;height:40px;border:4px solid #e5e7eb;border-top-color:#f97316;border-radius:50%;animation:spin-loader 0.8s linear infinite;"></div>
-      <p class="loading-text" style="margin-top:10px;color:#6b7280;font-size:.82rem">読み込み中...</p>
+    <div id="page-loader" class="loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#f5f3ff;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0">
+      <div style="background:#fff;border-radius:16px;padding:28px 36px;box-shadow:0 4px 24px rgba(124,58,237,0.15);text-align:center;max-width:290px;width:88%;">
+        <div style="width:60px;height:60px;border:6px solid #c4b5fd;border-top-color:#7c3aed;border-radius:50%;animation:spin-loader 0.8s linear infinite;margin:0 auto 16px;"></div>
+        <p class="loading-text" style="color:#1e1b4b;font-size:.95rem;font-weight:700;text-align:center;line-height:1.5;margin:0 0 6px">パズルデータを取得中...</p>
+        <p id="loader-sub" style="color:#7c3aed;font-size:.76rem;text-align:center;margin:0 0 10px">通常2〜3秒で起動します</p>
+        <div id="loader-steps" style="font-size:.72rem;color:#6b7280;text-align:left;line-height:2.1;display:none;border-top:1px solid #ede9fe;padding-top:10px;margin-top:6px">
+          <div id="step1">⏳ 接続確認中...</div>
+          <div id="step2" style="color:#9ca3af">⏳ パズルデータ取得中...</div>
+          <div id="step3" style="color:#9ca3af">⏳ ゲーム初期化中...</div>
+        </div>
+        <button id="loader-retry" onclick="location.reload()" style="display:none;margin-top:14px;background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:10px 0;font-size:.85rem;font-weight:700;cursor:pointer;width:100%">🔄 再読み込みする</button>
+      </div>
     </div>
     <div class="skeleton" style="display:none;height:3px;position:fixed;top:0;left:0;width:100%;z-index:9998"></div>
     <style>@keyframes spin-loader{to{transform:rotate(360deg)}} .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:sk-l 1.5s infinite} @keyframes sk-l{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -693,6 +800,79 @@ button, .btn, .btn-primary, .option-btn, [role="button"] { min-height: 48px; min
   body { font-size: 16px; }
   .max-w-lg { padding-left: 1rem; padding-right: 1rem; }
 }
+</style>
+<!-- CrosPuzz redesign theme (v2 / faithful) -->
+<style id="cp-redesign">
+:root{--cp-indigo:#4F46E5;--cp-indigo-d:#4338CA;--cp-pink:#EC4899;--cp-lav:#F3F1FE;--cp-lav2:#ECEAFD;--cp-ink:#1E1B4B;--cp-gray:#64748B;--cp-line:#E7E5F7;}
+body#app{background:linear-gradient(180deg,#F7F5FE 0%,#EEF0FF 100%)!important;font-family:'Noto Sans JP',system-ui,sans-serif!important;color:var(--cp-ink);}
+/* Header */
+header.bg-white{background:rgba(255,255,255,.95)!important;backdrop-filter:blur(8px);border-bottom:1px solid var(--cp-line);box-shadow:0 2px 16px rgba(79,70,229,.07)!important;}
+header h1{color:var(--cp-indigo)!important;font-weight:900!important;}
+.cp-nav-cta{display:inline-flex;align-items:center;gap:6px;background:var(--cp-indigo);color:#fff!important;font-weight:800;border-radius:999px;padding:9px 20px;font-size:14px;box-shadow:0 6px 16px rgba(79,70,229,.3);transition:.18s;}
+.cp-nav-cta:hover{background:var(--cp-indigo-d);transform:translateY(-1px);}
+/* Two-column game shell */
+.flex.max-w-7xl{display:grid!important;grid-template-columns:minmax(0,1fr) 320px;gap:22px;padding:26px 20px;align-items:start;max-width:1180px;}
+.flex.max-w-7xl>aside{order:2;position:static!important;width:auto!important;min-height:0!important;background:transparent!important;box-shadow:none!important;}
+.flex.max-w-7xl>aside .p-6{padding:0!important;display:flex;flex-direction:column;gap:16px;}
+.flex.max-w-7xl>aside h2{font-size:15px!important;}
+.flex.max-w-7xl>main{order:1;padding:0!important;background:#fff;border:1px solid var(--cp-line);border-radius:22px;box-shadow:0 14px 40px rgba(30,27,75,.08);padding:26px!important;}
+@media(max-width:1023px){.flex.max-w-7xl{grid-template-columns:1fr;}}
+/* inner stat panels -> cards */
+.flex.max-w-7xl>aside .bg-gray-50,.flex.max-w-7xl>aside .mb-6{background:#fff!important;border:1px solid var(--cp-line);border-radius:16px!important;box-shadow:0 6px 18px rgba(30,27,75,.05);}
+.flex.max-w-7xl>aside .mb-6{padding:0;border:none;box-shadow:none;}
+.flex.max-w-7xl>aside .bg-gray-50{padding:16px!important;}
+.flex.max-w-7xl>aside .pt-6{background:#fff!important;border:1px solid var(--cp-line)!important;border-radius:16px;padding:16px!important;}
+/* clue cards */
+main #acrossClues,main #downClues{max-height:170px;}
+main .rounded-lg.shadow-lg{border:1px solid var(--cp-line);box-shadow:0 6px 18px rgba(30,27,75,.05)!important;border-radius:16px!important;}
+/* difficulty + badges keep, just rounder */
+.difficulty-btn{border-radius:12px!important;}
+/* generic card style */
+.cp-card{background:#fff;border:1px solid var(--cp-line);border-radius:18px;box-shadow:0 8px 22px rgba(30,27,75,.06);padding:20px;}
+.cp-card .cp-h{display:flex;align-items:center;gap:9px;font-weight:900;font-size:15px;margin-bottom:14px;color:var(--cp-ink);}
+.cp-card .cp-h img{width:26px;height:26px;}
+.cp-rank{list-style:none;margin:0;padding:0;}
+.cp-rank li{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--cp-line);}
+.cp-rank li:last-child{border-bottom:none;}
+.cp-rank .rk{width:24px;height:24px;border-radius:50%;background:var(--cp-lav);color:var(--cp-indigo);font-weight:900;font-size:12px;display:grid;place-items:center;flex-shrink:0;}
+.cp-rank .rk.g{background:#FEF3C7;color:#B45309;}.cp-rank .rk.s{background:#E5E7EB;color:#475569;}.cp-rank .rk.b{background:#FCE7D6;color:#C2410C;}
+.cp-rank .av{width:30px;height:30px;border-radius:50%;object-fit:cover;}
+.cp-rank .nm{flex:1;font-weight:700;font-size:13px;}
+.cp-rank .sc{font-weight:900;color:var(--cp-indigo);font-size:13px;}
+.cp-streak{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#FFF7ED,#FFEDD5);border:1px solid #FED7AA;border-radius:14px;padding:14px;}
+.cp-streak img{width:36px;height:36px;}
+.cp-sns{display:flex;gap:10px;}
+.cp-sns a{flex:1;text-align:center;color:#fff;font-weight:800;font-size:13px;border-radius:10px;padding:10px;text-decoration:none;}
+.cp-daily{background:linear-gradient(135deg,#4F46E5,#7C6CF0);color:#fff;border-radius:18px;padding:18px;box-shadow:0 12px 26px rgba(79,70,229,.28);}
+.cp-daily .n{font-size:26px;font-weight:900;}
+/* Full-width design sections */
+.cp-fw{max-width:1180px;margin:0 auto;padding:14px 20px;}
+.cp-sec-h{text-align:center;margin:18px 0 8px;}
+.cp-sec-h .eb{display:inline-block;color:var(--cp-indigo);font-weight:800;font-size:12px;letter-spacing:.12em;background:var(--cp-lav);padding:5px 14px;border-radius:999px;}
+.cp-sec-h h2{font-size:clamp(22px,3.4vw,30px);font-weight:900;margin-top:10px;letter-spacing:-.02em;}
+.cp-sec-h h2 b{color:var(--cp-indigo);}
+.cp-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:24px 0;}
+.cp-step{background:#fff;border:1px solid var(--cp-line);border-radius:18px;padding:24px 20px;text-align:center;position:relative;box-shadow:0 8px 22px rgba(30,27,75,.05);}
+.cp-step .num{position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#EC4899);color:#fff;font-weight:900;display:grid;place-items:center;}
+.cp-step .ic{width:54px;height:54px;border-radius:14px;background:var(--cp-lav);display:grid;place-items:center;margin:12px auto;}
+.cp-step .ic img{width:32px;height:32px;}
+.cp-step h3{font-weight:800;font-size:16px;margin-bottom:6px;}
+.cp-step p{color:var(--cp-gray);font-size:13px;}
+.cp-bens{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;}
+.cp-ben{background:#fff;border:1px solid var(--cp-line);border-radius:16px;overflow:hidden;box-shadow:0 6px 18px rgba(30,27,75,.06);}
+.cp-ben .pic{aspect-ratio:16/10;overflow:hidden;}
+.cp-ben .pic img{width:100%;height:100%;object-fit:cover;}
+.cp-ben .pad{padding:16px;}
+.cp-ben .ic{width:40px;height:40px;border-radius:10px;background:#fff;border:3px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,.08);display:grid;place-items:center;margin:-38px 0 8px;position:relative;}
+.cp-ben .ic img{width:26px;height:26px;}
+.cp-ben h3{font-weight:800;font-size:15px;margin-bottom:5px;}
+.cp-ben p{color:var(--cp-gray);font-size:12.5px;}
+.cp-celebrate{background:radial-gradient(circle at 20% 20%,rgba(236,72,153,.5),transparent 45%),linear-gradient(135deg,#5B2A86,#7C3AED);color:#fff;border-radius:22px;padding:34px 24px;text-align:center;margin:26px 0;box-shadow:0 18px 40px rgba(124,58,237,.3);}
+.cp-celebrate h2{font-size:clamp(22px,3.4vw,30px);font-weight:900;}
+.cp-celebrate p{opacity:.9;margin:10px auto 22px;max-width:520px;font-size:14px;}
+.cp-celebrate a{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F472B6,#EC4899);color:#fff;font-weight:900;border-radius:999px;padding:15px 38px;text-decoration:none;font-size:17px;box-shadow:0 10px 24px rgba(236,72,153,.4);}
+@media(max-width:900px){.cp-steps{grid-template-columns:1fr;}.cp-bens{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.cp-bens{grid-template-columns:1fr;}}
 </style>
     <script>
         window.addEventListener("unhandledrejection",function(e){try{console.error("[cp Promise]",e.reason);}catch(e){}});
@@ -708,9 +888,6 @@ button, .btn, .btn-primary, .option-btn, [role="button"] { min-height: 48px; min
 <script>try{(adsbygoogle = window.adsbygoogle || []).push({});}catch(e){}</script>
 </div>
 <div class="max-w-2xl mx-auto px-4 mb-4">
-<section style="max-width:800px;padding:12px;background:#f0f9ff;border-radius:12px;"><h2 style="font-size:0.85rem;font-weight:bold;color:#0369a1;margin-bottom:8px;text-align:center;">✏️ パズル・言語学習サービス</h2><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;"><a href="https://appadaycreator.com/nanpure-quest/" style="background:#fff;border:2px solid #bae6fd;border-radius:10px;padding:9px 12px;text-decoration:none;text-align:center;min-width:95px;" onmouseover="this.style.borderColor='#0369a1'" onmouseout="this.style.borderColor='#bae6fd'"><div style="font-size:1.2rem;">🔢</div><div style="font-size:0.72rem;font-weight:bold;color:#374151;margin-top:2px;">数独ゲーム</div></a><a href="https://appadaycreator.com/kanji-tower-defense/" style="background:#fff;border:2px solid #bae6fd;border-radius:10px;padding:9px 12px;text-decoration:none;text-align:center;min-width:95px;" onmouseover="this.style.borderColor='#0369a1'" onmouseout="this.style.borderColor='#bae6fd'"><div style="font-size:1.2rem;">🏯</div><div style="font-size:0.72rem;font-weight:bold;color:#374151;margin-top:2px;">漢字ゲーム</div></a><a href="https://appadaycreator.com/flashcard-master/" style="background:#fff;border:2px solid #bae6fd;border-radius:10px;padding:9px 12px;text-decoration:none;text-align:center;min-width:95px;" onmouseover="this.style.borderColor='#0369a1'" onmouseout="this.style.borderColor='#bae6fd'"><div style="font-size:1.2rem;">📚</div><div style="font-size:0.72rem;font-weight:bold;color:#374151;margin-top:2px;">暗記カード</div></a></div></section>
-</div>
-<div class="max-w-lg mx-auto px-4 mb-4">
 <section style="max-width:800px;padding:12px;background:#f0f9ff;border-radius:12px;"><h2 style="font-size:0.85rem;font-weight:bold;color:#0369a1;margin-bottom:8px;text-align:center;">✏️ パズル・言語学習サービス</h2><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;"><a href="https://appadaycreator.com/nanpure-quest/" style="background:#fff;border:2px solid #bae6fd;border-radius:10px;padding:9px 12px;text-decoration:none;text-align:center;min-width:95px;" onmouseover="this.style.borderColor='#0369a1'" onmouseout="this.style.borderColor='#bae6fd'"><div style="font-size:1.2rem;">🔢</div><div style="font-size:0.72rem;font-weight:bold;color:#374151;margin-top:2px;">数独ゲーム</div></a><a href="https://appadaycreator.com/kanji-tower-defense/" style="background:#fff;border:2px solid #bae6fd;border-radius:10px;padding:9px 12px;text-decoration:none;text-align:center;min-width:95px;" onmouseover="this.style.borderColor='#0369a1'" onmouseout="this.style.borderColor='#bae6fd'"><div style="font-size:1.2rem;">🏯</div><div style="font-size:0.72rem;font-weight:bold;color:#374151;margin-top:2px;">漢字ゲーム</div></a><a href="https://appadaycreator.com/flashcard-master/" style="background:#fff;border:2px solid #bae6fd;border-radius:10px;padding:9px 12px;text-decoration:none;text-align:center;min-width:95px;" onmouseover="this.style.borderColor='#0369a1'" onmouseout="this.style.borderColor='#bae6fd'"><div style="font-size:1.2rem;">📚</div><div style="font-size:0.72rem;font-weight:bold;color:#374151;margin-top:2px;">暗記カード</div></a></div></section>
 </div>
 <div style="text-align:center;margin:14px auto;max-width:800px;padding:0 16px;">
@@ -893,5 +1070,167 @@ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',ini
   <strong>免責事項</strong>：本ツールの計算・診断結果はあくまで参考情報です。本サービスの利用により生じた損害について、当サイトは一切の責任を負いません。
 </div>
 </footer>
+
+<script>
+/* ============================================================
+   M4: スコア可視化 (Chart.js)
+   ============================================================ */
+function renderResultChart() {
+    var canvas = document.getElementById('resultChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    if (window._cpResultChart) {
+        try { window._cpResultChart.destroy(); } catch(e) {}
+        window._cpResultChart = null;
+    }
+
+    function parseTimeSec(t) {
+        if (!t) return 0;
+        var p = String(t).replace('--:--', '0:0').split(':');
+        return parseInt(p[0] || 0) * 60 + parseInt(p[1] || 0);
+    }
+
+    // 履歴データ取得
+    var hist = [];
+    try { hist = JSON.parse(localStorage.getItem('cp_hist') || '[]'); } catch(e) {}
+    var validHist = hist.filter(function(h) { return h.time && parseTimeSec(h.time) > 0; }).slice(-6);
+
+    var ft = document.getElementById('finalTime');
+    var currentSec = parseTimeSec(ft ? ft.textContent : '');
+
+    var labels = validHist.map(function(_, i) { return (i + 1) + '回目'; });
+    var data   = validHist.map(function(h) { return parseTimeSec(h.time); });
+    labels.push('今回');
+    data.push(currentSec);
+
+    var bgColors = data.map(function(_, i) {
+        return i === data.length - 1 ? 'rgba(99,102,241,0.85)' : 'rgba(99,102,241,0.35)';
+    });
+
+    window._cpResultChart = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '完了時間',
+                data: data,
+                backgroundColor: bgColors,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                title: { display: true, text: '完了時間の推移', font: { size: 11 } },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            var s = ctx.raw;
+                            return Math.floor(s / 60) + '分' + (s % 60) + '秒';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: '秒', font: { size: 10 } }, ticks: { font: { size: 10 } } },
+                x: { ticks: { font: { size: 10 } } }
+            }
+        }
+    });
+}
+
+// 成功モーダル表示時にグラフを描画
+(function() {
+    var modal = document.getElementById('successModal');
+    if (!modal) return;
+    new MutationObserver(function(mutations) {
+        mutations.forEach(function(m) {
+            if (m.attributeName === 'class' && !modal.classList.contains('hidden')) {
+                setTimeout(renderResultChart, 200);
+            }
+        });
+    }).observe(modal, { attributes: true, attributeFilter: ['class'] });
+})();
+
+/* ============================================================
+   M10: 印刷・結果エクスポート
+   ============================================================ */
+function printResult() {
+    var modal = document.getElementById('successModal');
+    if (modal && !modal.classList.contains('hidden')) {
+        document.body.classList.add('cp-printing');
+        window.print();
+        document.body.classList.remove('cp-printing');
+    } else {
+        window.print();
+    }
+}
+
+function copyResultToClipboard() {
+    var ft = document.getElementById('finalTime');
+    var hu = document.getElementById('hintsUsed');
+    var bs = document.getElementById('statBestTime');
+    var sk = document.getElementById('statStreak');
+    var tt = document.getElementById('statTotal');
+    var lines = [
+        'CrosPuzz クロスワードパズル 結果',
+        '完了時間: '    + (ft ? ft.textContent : '--'),
+        'ヒント使用: '  + (hu ? hu.textContent : '0') + '回',
+        'ベストタイム: ' + (bs ? bs.textContent : '--'),
+        '連続クリア: '  + (sk ? sk.textContent : '0'),
+        '累計完了: '    + (tt ? tt.textContent : '0'),
+        'https://appadaycreator.com/crospuzz-daily/'
+    ];
+    var text = lines.join('\n');
+
+    function fallback() {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch(e) {}
+        document.body.removeChild(ta);
+        if (typeof showSuccess === 'function') showSuccess('結果をコピーしました！');
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+            if (typeof showSuccess === 'function') showSuccess('結果をコピーしました！');
+        }).catch(fallback);
+    } else {
+        fallback();
+    }
+}
+
+function downloadResultCSV() {
+    var hist = [];
+    try { hist = JSON.parse(localStorage.getItem('cp_hist') || '[]'); } catch(e) {}
+    if (!hist.length) {
+        if (typeof showInfo === 'function') showInfo('保存された記録がありません');
+        return;
+    }
+    var rows = ['﻿日時,完了時間,ヒント使用数'];
+    hist.forEach(function(h) {
+        var d = h.ts ? new Date(h.ts).toLocaleString('ja-JP') : '';
+        rows.push([
+            '"' + d + '"',
+            '"' + (h.time || '') + '"',
+            '"' + (h.hints !== undefined ? h.hints : '') + '"'
+        ].join(','));
+    });
+    var blob = new Blob([rows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href   = url;
+    a.download = 'crospuzz_results.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    if (typeof showSuccess === 'function') showSuccess('CSVをダウンロードしました');
+}
+</script>
 </body>
 </html>

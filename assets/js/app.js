@@ -8,9 +8,43 @@ let retryCount = 0;
 // パズルデータ（難易度別）
 let puzzles = {};
 
+// ローディングオーバーレイを非表示にする
+function hidePageLoader() {
+  const loader = document.getElementById('page-loader');
+  if (!loader) return;
+  loader.style.transition = 'opacity 0.3s ease';
+  loader.style.opacity = '0';
+  setTimeout(function() { loader.style.display = 'none'; }, 320);
+}
+
+// ローディングメッセージを更新する
+function updateLoaderMessage(msg) {
+  const el = document.querySelector('#page-loader .loading-text');
+  if (el) el.textContent = msg;
+}
+
 // JSONファイルからパズルデータを読み込む
 async function loadPuzzleData() {
+  // 段階的タイムアウト: ユーザーへの進捗フィードバック強化（V1+V3対応）
+  var step2Timer = setTimeout(function() {
+    var stepsEl = document.getElementById('loader-steps');
+    if (stepsEl) stepsEl.style.display = 'block';
+    var s1 = document.getElementById('step1');
+    if (s1) { s1.style.color = '#16a34a'; s1.textContent = '✅ 接続確認完了'; }
+    var s2 = document.getElementById('step2');
+    if (s2) { s2.style.color = '#7c3aed'; }
+  }, 2000);
+  var loaderTimeout = setTimeout(function() {
+    updateLoaderMessage('⚠️ 読み込みに時間がかかっています');
+    var sub = document.getElementById('loader-sub');
+    if (sub) sub.textContent = 'ネットワーク環境を確認してください';
+    var retryBtn = document.getElementById('loader-retry');
+    if (retryBtn) retryBtn.style.display = 'block';
+    setTimeout(hidePageLoader, 6000);
+  }, 5000);
+
   try {
+    updateLoaderMessage('パズルデータを取得中...');
     // GitHub Pages対応: 本番環境では/crospuzz-daily/のパスが必要
     let jsonUrl = '/static/puzzles/puzzles.json';
     
@@ -37,7 +71,10 @@ async function loadPuzzleData() {
     }
     
     puzzles = data;
-    
+    clearTimeout(step2Timer);
+    clearTimeout(loaderTimeout);
+    updateLoaderMessage('ゲームを準備中...');
+
     // パズルデータ読み込み後に初期化を実行
     initializePuzzleSelect();
 
@@ -64,6 +101,7 @@ async function loadPuzzleData() {
       selectPuzzle('beginner', 0);
     }
     initializeGame();
+    hidePageLoader();
   } catch (error) {
     console.error('パズルデータの読み込みに失敗しました:', error);
     console.error('エラー詳細:', error.message);
@@ -92,6 +130,9 @@ async function loadPuzzleData() {
     
     initializePuzzleSelect();
     initializeGame();
+    clearTimeout(step2Timer);
+    clearTimeout(loaderTimeout);
+    hidePageLoader();
   }
 }
 
@@ -919,7 +960,7 @@ let currentPuzzleInDifficulty = 0;
 // 翻訳データ
 const translations = {
     ja: {
-        daily_puzzle: '今日のパズル',
+        daily_puzzle: '今日のクロスワードパズル',
         puzzle_date: '2024年1月15日',
         beginner: '初級',
         elapsed_time: '経過時間',
